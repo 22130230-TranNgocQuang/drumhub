@@ -1,0 +1,37 @@
+:root {
+    --bs-primary: #fd0;
+    --bs-secondary: #a93232;
+    --text-color: #333;
+    --hover-color: #000;
+    --text-white: #fff;
+    --mobile-header-height: 120px;
+    --mobile-bottom-nav-height: 60px;
+}
+
+
+a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+
+
+.btn-primary {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.bg-secondary {
+    background-color: #e6e7e8 !important;
+}
+
+  
