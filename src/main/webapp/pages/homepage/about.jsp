@@ -339,3 +339,5 @@
         setInterval(nextSlide, 2000);
     });
 </script>
+
+<%--day la commit dau tien --%>
