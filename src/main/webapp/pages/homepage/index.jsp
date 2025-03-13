@@ -69,7 +69,7 @@
     </div>
 </div>
 <div class="container mt-5">
-    <h2 class="text-start mb-4">SẢN PHẨM NỔI BẬT</h2>
+    <h2 class="text-start mb-4">SẢN PHẨM YÊU THÍCH</h2>
     <div class="row row-cols-1 row-cols-md-3 g-4" id="featuredProducts">
         <c:forEach var="product" items="${featuredProducts}">
             <div class="col">
