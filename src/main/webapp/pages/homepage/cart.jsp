@@ -207,7 +207,9 @@
                                         <p class="h3 cart-total">
                                             <fmt:formatNumber value="${cart.total}" type="currency" currencySymbol="₫"/>
                                         </p>
-                                        <button class="btn btn-primary w-100 mt-3">Thanh toán</button>
+                                        <button type="button" class="btn btn-primary w-100 mt-3"  onclick="window.location.href='${pageContext.request.contextPath}/checkout'">Thanh toán</button>
+
+
                                     </div>
                                 </div>
                             </div>
