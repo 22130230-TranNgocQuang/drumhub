@@ -117,5 +117,19 @@ public class CartController extends HttpServlet {
             response.getWriter().write(gson.toJson(error));
         }
     }
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
+        session.removeAttribute("cart"); // Xóa giỏ hàng khỏi session
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "Giỏ hàng đã được xóa");
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(result));
+    }
+
 }
 
