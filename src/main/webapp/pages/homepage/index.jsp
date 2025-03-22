@@ -192,3 +192,12 @@
         itemsContainer.appendChild(slideItem);
     });
 </script>
+<script>
+    window.onload = function () {
+        let message = "<%= session.getAttribute("message") %>";
+        if (message && message !== "null") {
+            alert(message);
+            <% session.removeAttribute("message"); %> // Xóa sau khi hiển thị
+        }
+    };
+</script>
