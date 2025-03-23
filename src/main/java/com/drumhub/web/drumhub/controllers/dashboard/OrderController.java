@@ -60,21 +60,6 @@ public class OrderController extends ResourceController {
     public void store(HttpServletRequest request, HttpServletResponse response) {
 
     }
-
-    @Override
-    public void edit(HttpServletRequest request, HttpServletResponse response, String id) throws ServletException, IOException {
-        Order order = orderService.findWithDetails(Integer.parseInt(id));
-        request.setAttribute("order", order);
-        request.setAttribute("pageTitle", "Chỉnh sửa đơn hàng");
-        request.setAttribute("content", "orders/edit.jsp");
-        request.getRequestDispatcher("/pages/dashboard/layout.jsp").forward(request, response);
-    }
-
-    @Override
-    public void update(HttpServletRequest request, HttpServletResponse response, String id) {
-
-    }
-
     @Override
     public void delete(HttpServletRequest request, HttpServletResponse response, String id) {
         try {
@@ -102,6 +87,21 @@ public class OrderController extends ResourceController {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Override
+    public void edit(HttpServletRequest request, HttpServletResponse response, String id) throws ServletException, IOException {
+        Order order = orderService.findWithDetails(Integer.parseInt(id));
+        request.setAttribute("order", order);
+        request.setAttribute("pageTitle", "Chỉnh sửa đơn hàng");
+        request.setAttribute("content", "orders/edit.jsp");
+        request.getRequestDispatcher("/pages/dashboard/layout.jsp").forward(request, response);
+    }
+
+    @Override
+    public void update(HttpServletRequest request, HttpServletResponse response, String id) {
+
+    }
+
 
     @Override
     //
