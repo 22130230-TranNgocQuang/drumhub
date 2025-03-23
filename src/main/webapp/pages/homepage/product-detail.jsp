@@ -502,6 +502,59 @@
         </div>
     </div>
 
+    <script>
+        function getQuantity() {
+            return parseInt(document.getElementById('quantityInput').value);
+        }
 
+      // Thay thế hàm getSelectedColor() hiện tại bằng:
+function getSelectedColor() {
+    const selectedColor = document.querySelector('input[name="color"]:checked');
+    if (!selectedColor) {
+        Swal.fire({
+            title: 'Lỗi!',
+            text: 'Vui lòng chọn màu sắc',
+            icon: 'warning'
+        });
+        return null;
+    }
+    return selectedColor.value;
+}
+
+// Thêm hàm buyNow
+function buyNow(productId, quantity, color) {
+    if (!color) {
+        return;
+    }
+    // Thêm vào giỏ hàng và chuyển đến trang thanh toán
+    AjaxUtils.addToCart(productId, quantity, color).then(() => {
+        window.location.href = '${pageContext.request.contextPath}/checkout';
+    });
+}
+
+        function addToCart(productId, quantity, color) {
+            AjaxUtils.addToCart(productId, quantity, color);
+        }
+
+        function increaseQuantity() {
+            const input = document.getElementById('quantityInput');
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('quantityInput');
+            const currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+
+        // Xử lý ảnh thumbnail
+        document.querySelectorAll('.thumb-img').forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                document.getElementById('mainImage').src = this.getAttribute('data-large');
+            });
+        });
+    </script>
 </main>
 
