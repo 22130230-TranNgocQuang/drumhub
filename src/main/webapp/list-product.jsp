@@ -6,7 +6,7 @@
 
 <html>
 <head>
-    <title>Title</title>
+    <title>Sản Phẩm</title>
 </head>
 <body>
 <form action="products" method="get">
@@ -24,7 +24,8 @@
         <th>Actions</th>
     </tr>
     <%
-        List<Product> products = (List<Product>) request.getAttribute("products");
+        List<Product> products = (List<Product>)request.getAttribute("products");
+        if (products != null)
         for (Product p : products) {
     %>
     <tr>
@@ -37,8 +38,9 @@
         <td><%= p.isStatus() ? "Active" : "Inactive" %>
         </td>
         <td>
-            <a href="products?action=edit&id=<%= p.getId() %>">Edit</a> |
-            <a href="products?action=delete&id=<%= p.getId() %>" onclick="return confirm('Are you sure?')">Delete</a>
+            <a href="list-product?action=edit&id=<%= p.getId() %>">Edit</a> |
+            <a href="list-product?action=detail&id=<%= p.getId() %>">Detail</a>
+            <a href="list-product?action=delete&id=<%= p.getId() %>" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
     </tr>
     <% } %>

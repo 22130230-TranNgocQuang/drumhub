@@ -18,4 +18,12 @@ public class ProductService {
             return null;
         }
     }
+
+    public Product getDetailById(int id) {
+        try {
+            return dao.getById(id);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }
