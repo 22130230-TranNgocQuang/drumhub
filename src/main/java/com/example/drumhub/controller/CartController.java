@@ -15,5 +15,21 @@ public class CartController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        if (action == null) {
+            action = "addCart";
+        }
+
+        switch (action) {
+            case "addCart":
+                addCart(request, response);
+                break;
+
+        }
+    }
+
+    private void addCart(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
     }
 }
