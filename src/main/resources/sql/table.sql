@@ -1,4 +1,4 @@
-use drum_hub;
+USE drum_hub;
 
 CREATE TABLE categories
 (
