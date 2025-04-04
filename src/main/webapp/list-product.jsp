@@ -1,257 +1,228 @@
-<%@ page import="java.util.List" %>
-<%@ page import="com.example.drumhub.dao.models.Product" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix = "f" uri = "http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
-<html>
+<!DOCTYPE html>
+<html lang="vi">
 <head>
-    <%@ page contentType="text/html;charset=UTF-8" %>
-    <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-    <header>
-        <div class="fixed-top d-none d-lg-block">
-            <img src="${pageContext.request.contextPath}/assets/images/banners/banner_header.png"
-                 alt="Tháng Tri Ân Săn Sale"
-                 class="img-fluid w-100 banner-header">
-            <nav class="navbar navbar-expand-lg navbar-light bg-primary">
-                <div class="container">
-                    <a class="navbar-brand" href="${pageContext.request.contextPath}/home">
-                        <img src="${pageContext.request.contextPath}/assets/images/logos/logo.png" alt="Logo"
-                             style="height: 60px;width: auto">
-                    </a>
-                    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                            aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <form class="search-form d-lg-none">
-                            <input class="form-control" type="search" placeholder="Tìm kiếm" aria-label="Search">
-                            <button class="btn btn-dark" type="submit">Tìm</button>
-                        </form>
-                        <div class="navbar-nav mx-auto fw-bold">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/home">TRANG CHỦ</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/about">GIỚI THIỆU</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/products">SẢN PHẨM</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/posts">TIN TỨC</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/contact">LIÊN HỆ</a>
-                        </div>
-                        <div class="action-buttons d-lg-none">
-                            <div class="account-button-container">
-                                <div class="d-flex align-items-center">
-                                    <a href="${pageContext.request.contextPath}/cart"
-                                       class="btn btn-light position-relative me-2">
-                                        <i class="bi bi-cart3"></i>
-                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cartCount"
-                                              style="display: ${sessionScope.cart.itemCount > 0 ? 'block' : 'none'}">
-                                            ${sessionScope.cart.itemCount}
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sản phẩm</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
-                            <div class="account-button-container dropdown">
-                                <button class="btn btn-light w-100" type="button" data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                    <i class="bi bi-person-circle"></i>
-                                </button>
-                                <ul class="dropdown-menu mobile-dropdown-menu">
-                                    <c:choose>
-                                        <c:when test="${empty sessionScope.user}">
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/login">Đăng nhập</a></li>
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/register">Đăng ký</a></li>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/my-account">Tài khoản của tôi</a></li>
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/orders">Đơn hàng</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form id="logoutFormUser" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
-                                                    <button type="button" onclick="return logout()"
-                                                            class="btn btn-link text-danger text-decoration-none w-100 text-start px-3">
-                                                        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- Desktop search form -->
-                        <form class="d-none d-lg-flex mt-lg-0 me-3">
-                            <input class="form-control me-2" type="search" placeholder="Tìm kiếm" aria-label="Search">
-                            <button class="btn btn-dark" type="submit">Tìm</button>
-                        </form>
-                        <!-- Desktop action buttons -->
-                        <div class="d-none d-lg-flex align-items-center">
-                            <a href="${pageContext.request.contextPath}/cart" class="btn btn-light me-3 position-relative">
-                                <i class="bi bi-cart-fill"></i>
-                                <c:if test="${sessionScope.cart.itemCount > 0}">
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cartCount">
-                                        ${sessionScope.cart.itemCount}
-                                </span>
-                                </c:if>
-                            </a>
-                            <!-- Account dropdown for desktop -->
-                            <div class="dropdown">
-                                <button class="btn btn-light dropdown-toggle" type="button" id="desktopAccountDropdown"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="desktopAccountDropdown">
-                                    <c:choose>
-                                        <c:when test="${empty sessionScope.user}">
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/login">Đăng nhập</a></li>
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/register">Đăng ký</a></li>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/my-account">Tài khoản của tôi</a></li>
-                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/orders">Đơn hàng</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form id="logoutForm" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
-                                                    <button type="button" onclick="return logout()"
-                                                            class="btn btn-link text-danger text-decoration-none w-100 text-start px-3">
-                                                        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        <div class="mobile-header d-lg-none">
-            <div class="mobile-banner">
-                Thổi hồn vào âm nhạc của bạn 🎉
-            </div>
-            <div class="mobile-main-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <button class="btn p-0" id="menuToggle">
-                        <i class="bi bi-list fs-4"></i>
-                    </button>
-                    <a href="${pageContext.request.contextPath}/home" class="logo">
-                        <img src="${pageContext.request.contextPath}/assets/images/logos/logo.png" alt="Logo" height="40">
-                    </a>
-                    <a href="${pageContext.request.contextPath}/cart" class="position-relative">
-                        <i class="bi bi-cart fs-4"></i>
-                        <c:if test="${sessionScope.cart.itemCount > 0}">
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cartCount">
-                                ${sessionScope.cart.itemCount}
-                        </span>
-                        </c:if>
-                    </a>
-                </div>
-                <div class="mobile-search">
-                    <label for="product-search" class="sr-only">Tìm kiếm sản phẩm</label>
-                    <input id="product-search" type="text" placeholder="Tìm kiếm sản phẩm..."/>
-                    <button><i class="bi bi-search"></i></button>
-                </div>
+    <style>
+        :root {
+            --drumhub-primary: #FFD700;  /* Màu vàng chính */
+            --drumhub-secondary: #FFFACD; /* Màu vàng nhạt */
+            --drumhub-dark: #FFA500;     /* Màu cam vàng đậm */
+            --drumhub-accent: #FF6347;   /* Màu phụ tomato */
+        }
 
-            </div>
-        </div>
+        /* Nền header/footer */
+        .navbar, .footer {
+            background-color: var(--drumhub-primary) !important;
+        }
 
-        <div class="mobile-side-menu" id="sideMenu">
-            <div class="menu-header">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-person-circle fs-1 me-3"></i>
-                    <div>
-                        <h6 class="mb-1">Xin chào!</h6>
-                        <a href="${pageContext.request.contextPath}/login" class="text-primary">Đăng nhập</a>
-                    </div>
-                </div>
-            </div>
-            <div class="menu-items">
-                <a href="${pageContext.request.contextPath}/home" class="menu-item">
-                    <i class="bi bi-house"></i>
-                    Trang chủ
-                </a>
-                <a href="${pageContext.request.contextPath}/products" class="menu-item">
-                    <i class="bi bi-grid"></i>
-                    Danh mục sản phẩm
-                </a>
-                <a href="${pageContext.request.contextPath}/account/orders" class="menu-item">
-                    <i class="bi bi-bag"></i>
-                    Đơn hàng của tôi
-                </a>
-                <a href="${pageContext.request.contextPath}/account/wishlist" class="menu-item">
-                    <i class="bi bi-heart"></i>
-                    Sản phẩm yêu thích
-                </a>
+        /* Nút chính */
+        .btn-primary {
+            background-color: var(--drumhub-dark);
+            border-color: var(--drumhub-dark);
+        }
+        .btn-primary:hover {
+            background-color: #FF8C00;
+            border-color: #FF8C00;
+        }
 
-                <a href="${pageContext.request.contextPath}/account/my-account" class="menu-item">
-                    <i class="bi bi-person"></i>
-                    Tài khoản của tôi
-                </a>
-            </div>
-        </div>
+        /* Card sản phẩm */
+        .card {
+            border: 1px solid var(--drumhub-secondary);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            transform: translateY(-5px);
+        }
 
-        <div class="menu-overlay" id="menuOverlay"></div>
+        /* Badge trạng thái */
+        .bg-success {
+            background-color: #28a745 !important; /* Giữ màu xanh cho trạng thái còn hàng */
+        }
+        .bg-secondary {
+            background-color: #6c757d !important; /* Giữ màu xám cho hết hàng */
+        }
 
-        <nav class="mobile-bottom-nav d-lg-none">
-            <div class="mobile-nav-items">
-                <a href="${pageContext.request.contextPath}/home" class="mobile-nav-item active">
-                    <i class="bi bi-house"></i>
-                    <span>Trang chủ</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/products" class="mobile-nav-item">
-                    <i class="bi bi-grid"></i>
-                    <span>Danh mục</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/cart" class="mobile-nav-item">
-                    <i class="bi bi-cart"></i>
-                    <span>Giỏ hàng</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/account/my-account" class="mobile-nav-item">
-                    <i class="bi bi-person"></i>
-                    <span>Tài khoản</span>
-                </a>
-            </div>
-        </nav>
-    </header>
+        /* Giá sản phẩm */
+        .price-text {
+            color: var(--drumhub-dark);
+            font-weight: bold;
+        }
+
+        /* Hiệu ứng hover nút */
+        .btn-outline-primary {
+            color: var(--drumhub-dark);
+            border-color: var(--drumhub-dark);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--drumhub-primary);
+        }
+    </style>
 </head>
 <body>
-<form action="products" method="get">
-    <input type="hidden" name="action" value="search">
-    Search: <input type="text" name="keyword">
-    <input type="submit" value="Search">
-</form>
+<!-- Header -->
+<jsp:include page="header.jsp"/>
 
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-    <%
-        List<Product> products = (List<Product>)request.getAttribute("products");
-        if (products != null)
-        for (Product p : products) {
-    %>
-    <tr>
-        <td><%= p.getId() %>
-        </td>
-        <td><%= p.getName() %>
-        </td>
-        <td><%= p.getImage() %>
-        </td>
-        <td><%= p.isStatus() ? "Active" : "Inactive" %>
-        </td>
-        <td>
-            <a href="list-product?action=edit&id=<%= p.getId() %>">Edit</a> |
-            <a href="list-product?action=detail&id=<%= p.getId() %>">Detail</a>
-            <a href="list-product?action=delete&id=<%= p.getId() %>" onclick="return confirm('Are you sure?')">Delete</a>
-        </td>
-    </tr>
-    <% } %>
-</table>
+<main class="container my-4">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Filter Sidebar -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Bộ lọc tìm kiếm</h5>
+                </div>
+                <div class="card-body">
+                    <form action="${pageContext.request.contextPath}/products" method="get">
+                        <!-- Search Input -->
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Tìm kiếm</label>
+                            <input type="text" class="form-control" id="search" name="search"
+                                   value="${param.search}" placeholder="Nhập tên sản phẩm...">
+                        </div>
 
+                        <!-- Category Filter -->
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Danh mục</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">Tất cả</option>
+                                <c:forEach items="${categories}" var="category">
+                                    <option value="${category.id}"
+                                        ${param.category eq category.id.toString() ? 'selected' : ''}>
+                                            ${category.name}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Áp dụng</button>
+                        <a href="${pageContext.request.contextPath}/products" class="btn btn-outline-secondary w-100 mt-2">Xóa bộ lọc</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- Product List -->
+            <div class="row">
+                <c:choose>
+                    <c:when test="${not empty products && products.size() > 0}">
+                        <c:forEach items="${products}" var="product">
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-img-container">
+                                        <img src="${pageContext.request.contextPath}/images/products/${product.image}"
+                                             class="card-img-top" alt="${product.name}">
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">${product.name}</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="price-text">
+                                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫"/>
+                                                </span>
+                                            <span class="badge ${product.status ? 'bg-success' : 'bg-secondary'}">
+                                                    ${product.status ? 'Còn hàng' : 'Hết hàng'}
+                                            </span>
+                                        </div>
+                                        <p class="card-text text-muted small">${product.shortDescription}</p>
+                                    </div>
+                                    <div class="card-footer bg-white">
+                                        <div class="d-flex justify-content-between">
+                                            <a href="${pageContext.request.contextPath}/products/${product.id}"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Xem chi tiết
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-success"
+                                                    onclick="addToCart(${product.id})">
+                                                <i class="bi bi-cart-plus"></i> Thêm giỏ
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="col-12 text-center py-5">
+                            <i class="bi bi-exclamation-circle display-4 text-muted"></i>
+                            <h3 class="mt-3">Không tìm thấy sản phẩm</h3>
+                            <p class="text-muted">Vui lòng thử lại với bộ lọc khác</p>
+                            <a href="${pageContext.request.contextPath}/products" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i> Xem tất cả
+                            </a>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+            <!-- Pagination -->
+            <c:if test="${totalPages > 1}">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="?page=${currentPage - 1}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        <c:forEach begin="1" end="${totalPages}" var="i">
+                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                <a class="page-link" href="?page=${i}">${i}</a>
+                            </li>
+                        </c:forEach>
+
+                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="?page=${currentPage + 1}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </c:if>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<jsp:include page="footer.jsp"/>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function addToCart(productId) {
+        fetch('${pageContext.request.contextPath}/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                productId: productId,
+                quantity: 1
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert('Đã thêm sản phẩm vào giỏ hàng');
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            });
+    }
+</script>
 </body>
 </html>
