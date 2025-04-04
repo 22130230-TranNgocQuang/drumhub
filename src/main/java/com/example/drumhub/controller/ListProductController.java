@@ -1,62 +1,63 @@
 package com.example.drumhub.controller;
+
 import com.example.drumhub.dao.models.Product;
 import com.example.drumhub.services.ProductService;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet(name = "ListProductController", value = "/list-product")
-public class ListProductController extends HttpServlet { 
+public class ListProductController extends HttpServlet {
+    private ProductService service = new ProductService(); // Khởi tạo 1 lần
 
-@Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String action = request.getParameter("action");
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        action = (action == null) ? "list" : action;
 
-    if (action == null) {
-        action = "list";
+        try {
+            switch (action) {
+                case "search":
+                    searchProducts(request, response);
+                    break;
+                case "detail":
+                    detailProducts(request, response);
+                    break;
+                default:
+                    listProducts(request, response);
+            }
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    switch (action) {
-        case "search":
-            searchProducts(request, response);
-            break;
-        case "detail":
-            detailProducts(request, response);
-            break;
-        default:
-            listProducts(request, response);
-            break;
-    }
-}
-
-    private void detailProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        ProductService service = new ProductService();
-        Product product = service.getDetailById(id);
-
-        request.setAttribute("product", product);
-        request.getRequestDispatcher("detail-product.jsp").forward(request, response);
+    private void detailProducts(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            Product product = service.getDetailById(id);
+            request.setAttribute("product", product);
+            request.getRequestDispatcher("/detail-product.jsp").forward(request, response);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID");
+        }
     }
 
-    private void searchProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ProductService service = new ProductService();
-        List<Product> all = service.getAll();
-        request.setAttribute("products", all);
-        request.getRequestDispatcher("list-product.jsp").forward(request, response);
+    // Các phương thức khác giữ nguyên nhưng thêm / vào đường dẫn JSP
+    private void searchProducts(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("products", service.getAll());
+        request.getRequestDispatcher("/list-product.jsp").forward(request, response);
     }
 
-    private void listProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // code lấy giá trị từ model
-        ProductService service = new ProductService();
-        List<Product> all = service.getAll();
-        // code truyền giá trị qua view
-        request.setAttribute("products", all);
-        // trang chuyển hướng view
-        request.getRequestDispatcher("list-product.jsp").forward(request, response);
-    }
-
-    @Override protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+    private void listProducts(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("products", service.getAll());
+        request.getRequestDispatcher("/list-product.jsp").forward(request, response);
     }
 }
