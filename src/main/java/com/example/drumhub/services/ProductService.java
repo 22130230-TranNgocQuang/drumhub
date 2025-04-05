@@ -1,8 +1,13 @@
 package com.example.drumhub.services;
 
 import com.example.drumhub.dao.ProductDAO;
+import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.Product;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductService {

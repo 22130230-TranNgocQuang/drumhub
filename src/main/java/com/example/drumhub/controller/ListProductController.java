@@ -32,6 +32,7 @@ public class ListProductController extends HttpServlet {
 
     private void detailProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
+
         ProductService service = new ProductService();
         Product product = service.getDetailById(id);
 
@@ -40,8 +41,11 @@ public class ListProductController extends HttpServlet {
     }
 
     private void searchProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // dữ liệu
         ProductService service = new ProductService();
         List<Product> all = service.getAll();
+
+        //------------------------------------
         request.setAttribute("products", all);
         request.getRequestDispatcher("list-product.jsp").forward(request, response);
     }

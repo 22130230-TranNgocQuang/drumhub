@@ -19,12 +19,12 @@ public class ProductDAO {
         try {
             rs = statement.executeQuery("SELECT * FROM products");
             List<Product> re = new ArrayList<>();
-        while (rs.next()){
-            re.add(new Product(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getBoolean(5), rs.getInt(6)));
-        }
-        return re;
+            while (rs.next()){
+                re.add(new Product(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getBoolean(5), rs.getInt(6)));
+            }
+            return re;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -35,6 +35,7 @@ public class ProductDAO {
             rs = statement.executeQuery("SELECT * FROM products where id = " + id);
             List<Product> re = new ArrayList<>();
             if (rs.next()){
+
                 return new Product(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getBoolean(5), rs.getInt(6));
             }
         } catch (SQLException e) {

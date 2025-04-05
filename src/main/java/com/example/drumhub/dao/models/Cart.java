@@ -10,6 +10,19 @@ public class Cart implements Serializable {
     private double price;
     private int orderId;
 
+    public Cart() {
+
+    }
+
+    public Cart(int id, Product product, int userId, int quantity, double price, int orderId) {
+        this.id = id;
+        this.product = product;
+        this.userId = userId;
+        this.quantity = quantity;
+        this.price = price;
+        this.orderId = orderId;
+    }
+
     public int getId() {
         return id;
     }
@@ -58,13 +71,6 @@ public class Cart implements Serializable {
         this.orderId = orderId;
     }
 
-    public Cart(int id, Product product, int userId, int quantity, double price, int orderId) {
-        this.id = id;
-        this.product = product;
-        this.userId = userId;
-        this.quantity = quantity;
-        this.price = price;
-        this.orderId = orderId;
-    }
+
 
 }
