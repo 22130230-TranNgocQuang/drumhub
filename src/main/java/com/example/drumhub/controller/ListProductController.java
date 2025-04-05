@@ -46,9 +46,11 @@ public class ListProductController extends HttpServlet {
         request.getRequestDispatcher("/list-product.jsp").forward(request, response);
     }
 
-    private void searchProducts(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String keyword = request.getParameter("keyword");
+    private void detailProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        ProductService service = new ProductService();
+        Product product = service.getDetailById(id);
 
         if (keyword == null || keyword.trim().isEmpty()) {
             // Nếu không có keyword thì hiển thị tất cả
@@ -56,9 +58,15 @@ public class ListProductController extends HttpServlet {
             return;
         }
 
-        List<Product> products = service.search(keyword);
-        request.setAttribute("products", products);
-        request.setAttribute("searchKeyword", keyword); // Giữ lại từ khóa tìm kiếm
+    private void searchProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // dữ liệu
+        ProductService service = new ProductService();
+        List<Product> all = service.getAll();
+
+        //------------------------------------
+        request.setAttribute("products", all);
+        request.getRequestDispatcher("list-product.jsp").forward(request, response);
+    }
 
         request.getRequestDispatcher("/list-product.jsp").forward(request, response);
     }
