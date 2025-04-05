@@ -121,7 +121,7 @@
                             <div class="col-md-4 mb-4">
                                 <div class="card h-100">
                                     <div class="card-img-container">
-                                        <img src="${pageContext.request.contextPath}/images/products/${product.image}"
+                                        <img src="${pageContext.request.contextPath}/assets/images/products/${product.image}"
                                              class="card-img-top" alt="${product.name}">
                                     </div>
                                     <div class="card-body">
@@ -138,7 +138,7 @@
                                     </div>
                                     <div class="card-footer bg-white">
                                         <div class="d-flex justify-content-between">
-                                            <a href="${pageContext.request.contextPath}/products/${product.id}"
+                                            <a href="${pageContext.request.contextPath}/list-product/${product.id}"
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-eye"></i> Xem chi tiết
                                             </a>
@@ -157,7 +157,7 @@
                             <i class="bi bi-exclamation-circle display-4 text-muted"></i>
                             <h3 class="mt-3">Không tìm thấy sản phẩm</h3>
                             <p class="text-muted">Vui lòng thử lại với bộ lọc khác</p>
-                            <a href="${pageContext.request.contextPath}/products" class="btn btn-primary">
+                            <a href="${pageContext.request.contextPath}/list-product" class="btn btn-primary">
                                 <i class="bi bi-arrow-left"></i> Xem tất cả
                             </a>
                         </div>
