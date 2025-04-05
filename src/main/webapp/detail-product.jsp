@@ -5,8 +5,10 @@
 <html>
 <head>
     <title>Chi Tiết Sản Phẩm</title>
+
 </head>
 <body>
+
 <%
     Product product = (Product) request.getAttribute("product");
     if (product != null) {

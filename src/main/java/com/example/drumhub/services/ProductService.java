@@ -31,4 +31,9 @@ public class ProductService {
             return null;
         }
     }
+    // Trong file ProductService.java
+    public List<Product> search(String keyword) {
+        // Triển khai logic tìm kiếm
+        return ProductDAO.search(keyword);
+    }
 }
