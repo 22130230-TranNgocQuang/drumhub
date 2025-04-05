@@ -5,68 +5,7 @@
 <html>
 <head>
     <title>Chi Tiết Sản Phẩm</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        .product-detail {
-            display: flex;
-            justify-content: space-between;
-        }
-        .product-info {
-            width: 45%;
-        }
-        .product-image {
-            width: 45%;
-        }
-        .product-image img {
-            max-width: 100%;
-            border-radius: 10px;
-        }
-        .product-info h2 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        .product-info .price {
-            font-size: 24px;
-            color: #dc3545;
-        }
-        .product-info .description {
-            margin-top: 15px;
-        }
-        .quantity {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
-        .quantity input {
-            width: 50px;
-            margin: 0 10px;
-            text-align: center;
-        }
-        .btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .form-container {
-            margin-top: 20px;
-        }
-        .form-container input, .form-container select, .form-container button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-    </style>
+
 </head>
 <body>
 
