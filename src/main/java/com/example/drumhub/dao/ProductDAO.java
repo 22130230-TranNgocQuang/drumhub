@@ -22,6 +22,7 @@ public class ProductDAO {
             while (rs.next()){
                 re.add(new Product(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getBoolean(5), rs.getInt(6)));
             }
+            System.out.println("Total products: " + re.size());
             return re;
         } catch (SQLException e) {
             throw new RuntimeException(e.toString());
