@@ -79,6 +79,8 @@
         <div class="col-md-3">
             <!-- Filter Sidebar -->
             <div class="card mb-4">
+                <br>
+                <br>
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Bộ lọc tìm kiếm</h5>
                 </div>
@@ -134,7 +136,7 @@
                                                     ${product.status ? 'Còn hàng' : 'Hết hàng'}
                                             </span>
                                         </div>
-                                        <p class="card-text text-muted small">${product.shortDescription}</p>
+<%--                                        <p class="card-text text-muted small">${product.shortDescription}</p>--%>
                                     </div>
                                     <div class="card-footer bg-white">
                                         <div class="d-flex justify-content-between">
