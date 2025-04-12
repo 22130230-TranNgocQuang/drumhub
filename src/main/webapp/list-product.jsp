@@ -140,7 +140,7 @@
                                     </div>
                                     <div class="card-footer bg-white">
                                         <div class="d-flex justify-content-between">
-                                            <a href="${pageContext.request.contextPath}/list-product/${product.id}"
+                                            <a href="${pageContext.request.contextPath}/list-product?id=${product.id}&action=detail"
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-eye"></i> Xem chi tiết
                                             </a>
