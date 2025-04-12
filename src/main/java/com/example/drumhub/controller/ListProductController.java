@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "ListProductController", value = "/list-product")
+@WebServlet(name = "ListProductController", value = {"/list-product", "/list-product/*"})
 public class ListProductController extends HttpServlet {
     private ProductService service = new ProductService();
 
@@ -64,7 +64,14 @@ public class ListProductController extends HttpServlet {
     private void detailProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int id = Integer.parseInt(request.getParameter("id"));
+            // Lấy ID từ URL path thay vì parameter
+            String pathInfo = request.getPathInfo(); // sẽ trả về "/1" nếu URL là /list-product/1
+            if (pathInfo == null || pathInfo.equals("/")) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing product ID");
+                return;
+            }
+
+            int id = Integer.parseInt(pathInfo.substring(1)); // Bỏ dấu "/" ở đầu
             Product product = service.getDetailById(id);
 
             if (product == null) {
