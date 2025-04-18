@@ -15,17 +15,10 @@
     body {
         justify-content: center;
         align-items: center;
-        margin: 0;
-    }
-
-    p {
-        text-weight: normal;
-        margin-bottom: 20px;
     }
 
     .login-container {
         margin: 0 auto;
-        align-content: center;
         width: 800px;
         background-color: #fff;
         padding: 30px;
@@ -88,8 +81,8 @@
         border: none;
         border-bottom: 1px solid #ccc;
         outline: none;
-        color: #fd0;
         background: none;
+        color: #fd0;
     }
 
     .field label {
@@ -97,31 +90,22 @@
         font-size: 14px;
         top: 0;
         left: 0;
-        translate: 0.625rem 0.625rem;
+        transform: translate(0.625rem, 0.625rem);
         color: #fd0;
-        padding-inline-start: 0.25rem;
+        padding-left: 0.25rem;
         pointer-events: none;
-        transition: translate 250ms;
+        transition: transform 250ms;
         visibility: hidden;
     }
 
     .field:focus-within label,
-    .field:not(:has(:placeholder-shown))
-    label {
-        translate: 0.5rem -1rem;
+    .field:not(:has(:placeholder-shown)) label {
+        transform: translate(0.5rem, -1rem);
         visibility: visible;
-    }
-
-    .field::placeholder {
-        color: transparent;
     }
 
     .field input:focus {
         border-bottom: 1px solid #fd0;
-    }
-
-    .field input:focus::placeholder {
-        color: transparent;
     }
 
     .error-message {
@@ -166,7 +150,6 @@
         font-size: 13px;
         font-style: italic;
     }
-
 </style>
 <div class="container my-5" style="min-height: 70vh">
     <div class="row">

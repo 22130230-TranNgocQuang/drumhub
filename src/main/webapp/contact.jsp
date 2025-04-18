@@ -16,9 +16,7 @@
     <style>
         :root {
             --drumhub-primary: #FFD700;  /* Màu vàng chính */
-            --drumhub-secondary: #FFFACD; /* Màu vàng nhạt */
             --drumhub-dark: #FFA500;     /* Màu cam vàng đậm */
-            --drumhub-accent: #FF6347;   /* Màu phụ tomato */
         }
 
         /* Nền header/footer */
@@ -26,115 +24,65 @@
             background-color: var(--drumhub-primary) !important;
         }
 
-        /* Nút chính */
-        .btn-primary {
-            background-color: var(--drumhub-dark);
-            border-color: var(--drumhub-dark);
-        }
-        .btn-primary:hover {
-            background-color: #FF8C00;
-            border-color: #FF8C00;
-        }
-
-        /* Card sản phẩm */
-        .card {
-            border: 1px solid var(--drumhub-secondary);
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-            transform: translateY(-5px);
-        }
-
-        /* Badge trạng thái */
-        .bg-success {
-            background-color: #28a745 !important; /* Giữ màu xanh cho trạng thái còn hàng */
-        }
-        .bg-secondary {
-            background-color: #6c757d !important; /* Giữ màu xám cho hết hàng */
-        }
-
-        /* Giá sản phẩm */
-        .price-text {
-            color: var(--drumhub-dark);
-            font-weight: bold;
-        }
-
-        /* Hiệu ứng hover nút */
-        .btn-outline-primary {
-            color: var(--drumhub-dark);
-            border-color: var(--drumhub-dark);
-        }
-        .btn-outline-primary:hover {
-            background-color: var(--drumhub-primary);
-        }
-    /* Tối ưu CSS cho trang liên hệ */
-    .contact-info {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        gap: 2rem;
-        padding: 2rem 0;
-    }
-
-    .contact-info i {
-        font-size: 2.5rem;
-        color: var(--bs-primary);
-        margin-bottom: 1rem;
-    }
-
-    .contact-info h4 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .contact-info p {
-        font-size: 1rem;
-        color: #666;
-    }
-
-    .contact-form {
-        background: #f8f9fa;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .map-container {
-        height: 400px;
-        width: 100%;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Banner Section */
-    .container-fluid.py-5.mb-5 {
-        background: #f1f1f1;
-        text-align: center;
-    }
-
-    .container-fluid.py-5.mb-5 h1 {
-        font-size: 2rem;
-        color: var(--bs-primary);
-        margin-top: 2rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
+        /* Tối ưu CSS cho trang liên hệ */
         .contact-info {
-            flex-direction: column;
-            align-items: center;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem 0;
         }
+
         .contact-info i {
-            font-size: 3rem;
+            font-size: 2.5rem;
+            color: var(--bs-primary);
+            margin-bottom: 1rem;
+        }
+
+        .contact-info h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .contact-info p {
+            font-size: 1rem;
+            color: #666;
         }
 
         .map-container {
-            height: 300px;
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
-    }
+
+        .container-fluid.py-5.mb-5 {
+            background: #f1f1f1;
+            text-align: center;
+        }
+
+        .container-fluid.py-5.mb-5 h1 {
+            font-size: 2rem;
+            color: var(--bs-primary);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .contact-info {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .contact-info i {
+                font-size: 3rem;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+        }
     </style>
 </head>
 <jsp:include page="header.jsp"/>

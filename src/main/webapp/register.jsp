@@ -7,14 +7,14 @@
     }
 
     body {
+        margin: 0;
+        display: flex;
         justify-content: center;
         align-items: center;
-        margin: 0;
     }
 
     .login-container {
         margin: 0 auto;
-        align-content: center;
         width: 800px;
         background-color: #fff;
         padding: 30px;
@@ -28,7 +28,6 @@
         margin-bottom: 20px;
     }
 
-    /* Social buttons */
     .social-buttons {
         display: flex;
         justify-content: center;
@@ -51,7 +50,6 @@
         margin-right: 5px;
     }
 
-    /* Form styles */
     .field {
         position: relative;
         margin-bottom: 30px;
@@ -81,8 +79,7 @@
     }
 
     .field:focus-within label,
-    .field:not(:has(:placeholder-shown)),
-    label {
+    .field:not(:has(:placeholder-shown)) {
         translate: 0.5rem -1rem;
         visibility: visible;
     }
