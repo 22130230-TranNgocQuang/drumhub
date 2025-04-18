@@ -15,10 +15,10 @@
 
   <style>
     :root {
-      --drumhub-primary: #FFD700;
-      --drumhub-secondary: #FFFACD;
-      --drumhub-dark: #FFA500;
-      --drumhub-accent: #FF6347;
+      --drumhub-primary: #FFD700;  /* Màu vàng chính */
+      --drumhub-secondary: #FFFACD; /* Màu vàng nhạt */
+      --drumhub-dark: #FFA500;     /* Màu cam vàng đậm */
+      --drumhub-accent: #FF6347;   /* Màu phụ tomato */
     }
 
     /* Nền header/footer */
@@ -36,7 +36,7 @@
       border-color: #FF8C00;
     }
 
-    /* Card sản phẩm, danh mục, bài viết */
+    /* Card sản phẩm */
     .card {
       border: 1px solid var(--drumhub-secondary);
       transition: all 0.3s ease;
@@ -48,13 +48,56 @@
 
     /* Badge trạng thái */
     .bg-success {
-      background-color: #28a745 !important;
+      background-color: #28a745 !important; /* Giữ màu xanh cho trạng thái còn hàng */
     }
     .bg-secondary {
-      background-color: #6c757d !important;
+      background-color: #6c757d !important; /* Giữ màu xám cho hết hàng */
+    }
+
+    /* Giá sản phẩm */
+    .price-text {
+      color: var(--drumhub-dark);
+      font-weight: bold;
+    }
+
+    /* Hiệu ứng hover nút */
+    .btn-outline-primary {
+      color: var(--drumhub-dark);
+      border-color: var(--drumhub-dark);
+    }
+    .btn-outline-primary:hover {
+      background-color: var(--drumhub-primary);
+    }
+    /* Button styling */
+    .btn-primary {
+      background-color: var(--drumhub-dark);
+      border-color: var(--drumhub-dark);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background-color: #FF8C00;
+      border-color: #FF8C00;
+      color: #000;
+    }
+
+    .btn-outline-primary {
+      color: var(--drumhub-dark);
+      border-color: var(--drumhub-dark);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--bs-primary);
+      color: #000;
+    }
+    .nav-link:hover {
+      color: var(--drumhub-dark) !important;
+    }
+    .nav-link {
+      color: #000 !important;
+      font-weight: 500;
     }
   </style>
-
 </head>
 <body>
 <!-- Header -->

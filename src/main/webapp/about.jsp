@@ -55,6 +55,15 @@
       box-shadow: 0 10px 20px rgba(255, 215, 0, 0.1);
     }
 
+    .bg-gradient-primary {
+      background: linear-gradient(45deg, #FFD700, #FFA500) !important;
+    }
+
+    .text-primary {
+      color: #FFD700 !important;
+    }
+
+    /* Custom color variables */
     :root {
       --bs-primary: #FFD700;
       --bs-primary-rgb: 255, 215, 0;
@@ -63,6 +72,7 @@
       --drumhub-accent: #FF6347;
     }
 
+    /* Navbar styling */
     .navbar {
       background-color: var(--bs-primary) !important;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -82,6 +92,7 @@
       color: var(--drumhub-dark) !important;
     }
 
+    /* Button styling */
     .btn-primary {
       background-color: var(--drumhub-dark);
       border-color: var(--drumhub-dark);
@@ -94,6 +105,17 @@
       color: #000;
     }
 
+    .btn-outline-primary {
+      color: var(--drumhub-dark);
+      border-color: var(--drumhub-dark);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--bs-primary);
+      color: #000;
+    }
+
+    /* Icon boxes */
     .icon-box {
       background-color: #fff;
       border-radius: 10px;
@@ -119,11 +141,13 @@
       color: var(--bs-primary);
     }
 
+    /* Price text */
     .price-text {
       color: var(--drumhub-dark);
       font-weight: bold;
     }
 
+    /* Footer styling */
     .footer {
       background-color: var(--bs-primary) !important;
       color: #000;
@@ -138,6 +162,18 @@
     .footer a:hover {
       color: var(--drumhub-dark);
       text-decoration: underline;
+    }
+
+    /* Hero section */
+    .hero-section {
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/assets/images/helpers/about.jpg') no-repeat center center;
+      background-size: cover;
+    }
+
+    /* Card headers */
+    .card-header {
+      background-color: rgba(255, 215, 0, 0.1);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.3);
     }
   </style>
 </head>
