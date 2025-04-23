@@ -39,38 +39,3 @@ CREATE TABLE carts
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
     FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE SET NULL
 );
-
-
-CREATE TABLE users
-(
-    id        INT AUTO_INCREMENT PRIMARY KEY,
-    username  VARCHAR(100) NOT NULL UNIQUE,
-    password  VARCHAR(255) NOT NULL,
-    email     VARCHAR(255) UNIQUE,
-    fullName  VARCHAR(255),
-    role      ENUM('admin', 'user') DEFAULT 'user',
-    status    BOOLEAN DEFAULT TRUE,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE orders
-(
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    userId     INT            NOT NULL,
-    orderDate  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
-    totalPrice DECIMAL(10, 2) NOT NULL CHECK (totalPrice >= 0),
-    status     VARCHAR(50) DEFAULT 'pending',
-
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE orderDetails
-(
-    id        INT AUTO_INCREMENT PRIMARY KEY,
-    orderId   INT NOT NULL,
-    productId INT NOT NULL,
-    quantity  INT NOT NULL CHECK (quantity > 0),
-    price     DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
-    FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE
-);
