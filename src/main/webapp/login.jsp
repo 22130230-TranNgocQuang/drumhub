@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <style>
     .success-message {
         color: green;
@@ -168,14 +169,16 @@
                 </button>
             </div>
             <div class="divider">hoặc</div>
-            <c:if test="${not empty successMessage}">
-                <p class="success-message">${successMessage}</p>
+
+            <c:if test="${not empty errorMessage}">
+                <p class="error-message">${errorMessage}</p>
             </c:if>
+
             <form id="login-form" action="${pageContext.request.contextPath}/login" method="post">
                 <div class="field">
-                    <input type="text" name="username" id="user-number" placeholder="Nhập số điện thoại hoặc email"
+                    <input type="text" name="username" id="user-number" placeholder="Nhập tên đăng nhập"
                            required>
-                    <label for="user-number" id="user-number-label">Số điện thoại</label>
+                    <label for="user-number" id="user-number-label">Tên đăng nhập</label>
                     <p id="user-number-error" class="error-message"></p>
                 </div>
 
@@ -198,5 +201,3 @@
         </div>
     </div>
 </div>
-
-
