@@ -135,6 +135,10 @@
 
             <form id="register-form" action="${pageContext.request.contextPath}/register" method="post">
                 <div class="field">
+                    <input type="text" name="username" id="user-name" placeholder="Nhập tên đăng nhập" required>
+                    <label for="user-name">Họ và tên</label>
+                </div>
+                <div class="field">
                     <input type="text" name="fullname" id="full-name" placeholder="Nhập họ và tên" required>
                     <label for="full-name">Họ và tên</label>
                     <p id="full-name-error" class="error-message">${fullnameError}</p>

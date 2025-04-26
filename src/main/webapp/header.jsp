@@ -59,7 +59,7 @@
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form id="logoutFormUser" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
-                                                <button type="button" onclick="return logout()" 
+                                                <button type="button" onclick="return logout()"
                                                         class="btn btn-link text-danger text-decoration-none w-100 text-start px-3">
                                                     <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
                                                 </button>
@@ -103,7 +103,7 @@
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form id="logoutForm" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
-                                                <button type="button" onclick="return logout()" 
+                                                <button type="button" onclick="return logout()"
                                                         class="btn btn-link text-danger text-decoration-none w-100 text-start px-3">
                                                     <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
                                                 </button>
@@ -118,91 +118,17 @@
             </div>
         </nav>
     </div>
-    <div class="mobile-header d-lg-none">
-        <div class="mobile-banner">
-            Thổi hồn vào âm nhạc của bạn 🎉
-        </div>
-        <div class="mobile-main-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <button class="btn p-0" id="menuToggle">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-                <a href="${pageContext.request.contextPath}/home" class="logo">
-                    <img src="${pageContext.request.contextPath}/assets/images/logos/logo.png" alt="Logo" height="40">
-                </a>
-                <a href="${pageContext.request.contextPath}/cart" class="position-relative">
-                    <i class="bi bi-cart fs-4"></i>
-                    <c:if test="${sessionScope.cart.itemCount > 0}">
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cartCount">
-                                ${sessionScope.cart.itemCount}
-                        </span>
-                    </c:if>
-                </a>
-            </div>
-            <div class="mobile-search">
-                <label for="product-search" class="sr-only">Tìm kiếm sản phẩm</label>
-                <input id="product-search" type="text" placeholder="Tìm kiếm sản phẩm..."/>
-                <button><i class="bi bi-search"></i></button>
-            </div>
 
-        </div>
-    </div>
-
-    <div class="mobile-side-menu" id="sideMenu">
-        <div class="menu-header">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-person-circle fs-1 me-3"></i>
-                <div>
-                    <h6 class="mb-1">Xin chào!</h6>
-                    <a href="${pageContext.request.contextPath}/login" class="text-primary">Đăng nhập</a>
-                </div>
-            </div>
-        </div>
-        <div class="menu-items">
-            <a href="${pageContext.request.contextPath}/home" class="menu-item">
-                <i class="bi bi-house"></i>
-                Trang chủ
-            </a>
-            <a href="${pageContext.request.contextPath}/products" class="menu-item">
-                <i class="bi bi-grid"></i>
-                Danh mục sản phẩm
-            </a>
-            <a href="${pageContext.request.contextPath}/account/orders" class="menu-item">
-                <i class="bi bi-bag"></i>
-                Đơn hàng của tôi
-            </a>
-            <a href="${pageContext.request.contextPath}/account/wishlist" class="menu-item">
-                <i class="bi bi-heart"></i>
-                Sản phẩm yêu thích
-            </a>
-
-            <a href="${pageContext.request.contextPath}/account/my-account" class="menu-item">
-                <i class="bi bi-person"></i>
-                Tài khoản của tôi
-            </a>
-        </div>
-    </div>
-
-    <div class="menu-overlay" id="menuOverlay"></div>
-
-    <nav class="mobile-bottom-nav d-lg-none">
-        <div class="mobile-nav-items">
-            <a href="${pageContext.request.contextPath}/home" class="mobile-nav-item active">
-                <i class="bi bi-house"></i>
-                <span>Trang chủ</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/products" class="mobile-nav-item">
-                <i class="bi bi-grid"></i>
-                <span>Danh mục</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/cart" class="mobile-nav-item">
-                <i class="bi bi-cart"></i>
-                <span>Giỏ hàng</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/account/my-account" class="mobile-nav-item">
-                <i class="bi bi-person"></i>
-                <span>Tài khoản</span>
-            </a>
-        </div>
-    </nav>
+    <!-- JavaScript for logout confirmation -->
+    <script type="text/javascript">
+        function logout() {
+            var confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất?");
+            if (confirmLogout) {
+                document.getElementById('logoutForm').submit();
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
 </header>
