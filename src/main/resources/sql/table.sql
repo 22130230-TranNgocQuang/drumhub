@@ -39,8 +39,6 @@ CREATE TABLE carts
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
     FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE SET NULL
 );
-
-
 CREATE TABLE users
 (
     id        INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +47,7 @@ CREATE TABLE users
     email     VARCHAR(255) UNIQUE,
     fullName  VARCHAR(255),
     role      ENUM('admin', 'user') DEFAULT 'user',
-    status    BOOLEAN DEFAULT TRUE,
+    status    tinyint DEFAULT 0,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
