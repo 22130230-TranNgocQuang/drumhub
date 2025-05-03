@@ -72,3 +72,15 @@ CREATE TABLE orderDetails
     FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE
 );
+
+CREATE TABLE carts
+(
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    productId INT NOT NULL,
+    userId    INT NOT NULL,
+    quantity  INT NOT NULL CHECK (quantity > 0),
+    price     DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+    orderId   INT DEFAULT NULL,
+    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE SET NULL
+);
