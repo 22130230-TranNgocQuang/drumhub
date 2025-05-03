@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Danh sách sản phẩm</title>
+  <title>Trang chủ Drum Store</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
@@ -102,8 +102,7 @@
 <body>
 <!-- Header -->
 <jsp:include page="header.jsp"/>
-
-
+<br><br><br><br>
 <div id="carouselExampleIndicators" class="carousel slide">
   <div class="carousel-indicators" id="carouselIndicators"></div>
   <div class="carousel-inner" id="carouselItems"></div>
