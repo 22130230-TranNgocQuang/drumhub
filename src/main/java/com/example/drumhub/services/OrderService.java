@@ -1,14 +1,24 @@
 package com.example.drumhub.services;
 
+import com.example.drumhub.dao.models.Order;
 import com.mysql.cj.x.protobuf.MysqlxCrud;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrderService {
+    private Connection conn;
+
+    public OrderService(Connection conn) {
+        this.conn = conn;
+    }
 
     // CREATE
-    public boolean createOrder(MysqlxCrud.Order order) throws SQLException {
+    public boolean createOrder(Order order) throws SQLException {
         String sql = "INSERT INTO orders (userId, totalPrice, status) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, order.getUserId());
@@ -20,6 +30,7 @@ public class OrderService {
 
     // READ (one)
     public Order getOrderById(int id) throws SQLException {
+
         String sql = "SELECT * FROM orders WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
