@@ -25,6 +25,9 @@
         .navbar, .footer {
             background-color: var(--drumhub-primary) !important;
         }
+        main {
+            padding-top: 150px;
+        }
 
         /* Nút chính */
         .btn-primary {
@@ -136,11 +139,11 @@
                                                     ${product.status ? 'Còn hàng' : 'Hết hàng'}
                                             </span>
                                         </div>
-<%--                                        <p class="card-text text-muted small">${product.shortDescription}</p>--%>
+                                            <%--                                        <p class="card-text text-muted small">${product.shortDescription}</p>--%>
                                     </div>
                                     <div class="card-footer bg-white">
                                         <div class="d-flex justify-content-between">
-                                            <a href="${pageContext.request.contextPath}/list-product?id=${product.id}&action=detail"
+                                            <a href="${pageContext.request.contextPath}/list-product/${product.id}?action=detail"
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-eye"></i> Xem chi tiết
                                             </a>
