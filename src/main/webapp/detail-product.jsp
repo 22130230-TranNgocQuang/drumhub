@@ -23,6 +23,14 @@
             --drumhub-dark: #FFA500;
             --drumhub-accent: #FF6347;
         }
+        /* Nền header/footer */
+        .navbar, .footer {
+            background-color: var(--drumhub-primary) !important;
+        }
+        main {
+            padding-top: 150px; /* Điều chỉnh phù hợp với chiều cao thanh menu */
+        }
+
 
         .btn i {
             font-size: 1.1rem;
@@ -163,13 +171,6 @@
                     </button>
                 </div>
 
-                <!-- Mô tả (nếu có trong CSDL) -->
-                <c:if test="${not empty product.description}">
-                    <div class="description mt-4">
-                        <h5>Mô tả sản phẩm:</h5>
-                        <p>${product.description}</p>
-                    </div>
-                </c:if>
             </div>
         </div>
 
