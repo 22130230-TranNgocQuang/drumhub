@@ -10,10 +10,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @WebServlet("/login")
 public class LoginController extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
+    // Google OAuth
+    private static final String CLIENT_ID = "467836431196-6hp51978i86knhd3nccpr65dtlp5hoiq.apps.googleusercontent.com";
+    private static final String REDIRECT_URI = "http://localhost:8080/oauth2callback";
+    private static final String SCOPE = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
@@ -46,14 +53,30 @@ public class LoginController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Kiểm tra nếu người dùng đã đăng nhập rồi thì chuyển hướng tới trang chủ
+        String action = request.getParameter("action");
+        if ("google".equals(action)) {
+            doGoogleLogin(request, response);  // redirect sang Google OAuth
+            return;
+        }
+
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
-            // Đã đăng nhập, chuyển về trang home
             response.sendRedirect("/index.jsp");
         } else {
-            // Chưa đăng nhập, hiển thị trang login
             request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
     }
+    private void doGoogleLogin(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String oauthUrl = "https://accounts.google.com/o/oauth2/auth"
+                + "?client_id=" + CLIENT_ID
+                + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI, "UTF-8")
+                + "&response_type=code"
+                + "&scope=" + URLEncoder.encode(SCOPE, "UTF-8")
+                + "&access_type=offline";
+
+        response.sendRedirect(oauthUrl);
+    }
+
 }
