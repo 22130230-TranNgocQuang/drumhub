@@ -7,6 +7,14 @@ public class DBConnect {
     static Connection conn;
     static String url = "jdbc:mysql://" + DBProperties.host() + ":" + DBProperties.port() + "/" + DBProperties.dbname() + "?" + DBProperties.option();
 
+    public static Connection getConnection() throws SQLException, ClassNotFoundException {
+        if (conn == null || conn.isClosed()) {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(url, DBProperties.username(), DBProperties.password());
+        }
+        return conn;
+    }
+
     public static Statement getStatement(){
         try {
             if (conn == null || conn.isClosed()) {
