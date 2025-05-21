@@ -3,6 +3,7 @@ package com.example.drumhub.dao;
 import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.User;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -87,6 +88,39 @@ public class UserDAO {
         }
         return null;
     }
+    public User findUserByEmail(String email) {
+        Statement stmt = DBConnect.getStatement();
+        ResultSet rs;
+        try {
+            String sql = "SELECT * FROM users WHERE email = '" + email + "'";
+            rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                return extractUser(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+    public boolean registerGoogleUser(User user) {
+        String sql = "INSERT INTO users (username, password, email, fullName, role, status) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = DBConnect.getConnection().prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, "");
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getUsername());
+            ps.setInt(5, user.getRole());
+            ps.setInt(6, user.getStatus());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public boolean checkEmailExists(String email) {
         Statement stmt = DBConnect.getStatement();
@@ -119,7 +153,7 @@ public class UserDAO {
                 rs.getString("password"),
                 rs.getString("email"),
                 rs.getString("fullName"),
-                rs.getString("role"),
+                rs.getInt("role"),
                 rs.getInt("status"),  // status được lấy là kiểu int từ cơ sở dữ liệu
                 rs.getTimestamp("createdAt")
         );
