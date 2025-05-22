@@ -1,5 +1,6 @@
 package com.example.drumhub.controller;
 
+import com.example.drumhub.dao.models.User;
 import com.example.drumhub.services.CartService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -10,7 +11,6 @@ import java.sql.SQLException;
 
 @WebServlet(name = "CartController", value = "/cart")
 public class CartController extends HttpServlet {
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     }
@@ -44,11 +44,15 @@ public class CartController extends HttpServlet {
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         double price = Double.parseDouble(request.getParameter("price"));
 
+        HttpSession session = request.getSession(false);
+        User user = (User) session.getAttribute("user");
+        int userId = (user != null) ? user.getId() : 0;
+
         CartService service = new CartService();
         boolean result = false;
-        result = service.addCart(productId, quantity, price);
+        result = service.addCart(userId, productId, quantity, price);
 
         request.setAttribute("result", result);
-        response.sendRedirect("list-product?action=detail&id=" + productId);
+        response.sendRedirect(request.getContextPath() + "/list-product?action=detail&id=" + productId);
     }
 }

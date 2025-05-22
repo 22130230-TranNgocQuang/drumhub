@@ -23,10 +23,12 @@
             --drumhub-dark: #FFA500;
             --drumhub-accent: #FF6347;
         }
+
         /* Nền header/footer */
         .navbar, .footer {
             background-color: var(--drumhub-primary) !important;
         }
+
         main {
             padding-top: 150px; /* Điều chỉnh phù hợp với chiều cao thanh menu */
         }
@@ -134,6 +136,7 @@
                         <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫"/>
                     </h3>
                 </div>
+                <input type="hidden" name="price" value="${product.price}">
 
                 <!-- Số lượng -->
                 <div class="mb-4">
@@ -143,7 +146,8 @@
                             <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">
                                 <i class="bi bi-dash"></i>
                             </button>
-                            <input type="number" class="form-control text-center" id="quantityInput" value="1" min="1">
+                            <input type="number" class="form-control text-center" id="quantityInput" name="quantity"
+                                   value="1" min="1">
                             <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">
                                 <i class="bi bi-plus"></i>
                             </button>
@@ -164,11 +168,6 @@
                         <i class="bi bi-lightning-fill"></i>
                         <span>Mua ngay</span>
                     </button>
-
-                    <button class="btn btn-outline-danger" onclick="toggleWishlist(${product.id})"
-                            data-bs-toggle="tooltip" data-bs-placement="top" title="Thêm vào yêu thích">
-                        <i class="bi bi-heart"></i>
-                    </button>
                 </div>
 
             </div>
@@ -183,11 +182,13 @@
                         <div class="col-md-3 mb-4">
                             <div class="card h-100">
                                 <img src="${pageContext.request.contextPath}/assets/images/products/${relatedProduct.image}"
-                                     class="card-img-top" alt="${relatedProduct.name}" style="height: 200px; object-fit: contain;">
+                                     class="card-img-top" alt="${relatedProduct.name}"
+                                     style="height: 200px; object-fit: contain;">
                                 <div class="card-body">
                                     <h5 class="card-title">${relatedProduct.name}</h5>
                                     <p class="card-text text-danger mb-2">
-                                        <fmt:formatNumber value="${relatedProduct.price}" type="currency" currencySymbol="₫"/>
+                                        <fmt:formatNumber value="${relatedProduct.price}" type="currency"
+                                                          currencySymbol="₫"/>
                                     </p>
                                     <a href="${pageContext.request.contextPath}/list-product/${relatedProduct.id}"
                                        class="btn btn-primary w-100">Xem chi tiết</a>
@@ -225,41 +226,50 @@
 
     function decreaseQuantity() {
         const input = document.getElementById('quantityInput');
-        if(input.value > 1) {
+        if (input.value > 1) {
             input.value = parseInt(input.value) - 1;
         }
     }
 
-    // Thêm vào giỏ hàng
+    //Thêm vào giỏ hàng
     function addToCart(productId, quantity) {
-        fetch('${pageContext.request.contextPath}/api/cart/add', {
+        fetch('${pageContext.request.contextPath}/cart', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
+                action: 'addCart',
                 productId: productId,
                 quantity: quantity,
-                price: ${product.price} // Lấy giá từ sản phẩm
+                price: document.querySelector('[name="price"]').value
             })
         })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
+
+            .then(response => {
+                if (response.redirected) {
                     Swal.fire({
-                        position: 'top-end',
                         icon: 'success',
                         title: 'Đã thêm vào giỏ hàng',
                         showConfirmButton: false,
                         timer: 1500
                     });
                 } else {
-                    Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Thêm thất bại',
+                        showConfirmButton: true,
+                    });
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Lỗi', 'Có lỗi xảy ra khi thêm vào giỏ hàng', 'error');
+                console.error('Lỗi khi thêm vào giỏ hàng', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi hệ thống',
+                    text: 'Không thể thêm sản phẩm vào giỏ hàng',
+                    showCancelButton: true
+                });
             });
     }
 
@@ -273,7 +283,7 @@
     }
 
     // Khởi tạo tooltip
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
