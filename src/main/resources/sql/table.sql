@@ -31,7 +31,7 @@ CREATE TABLE users (
                        password  VARCHAR(255) NOT NULL,
                        email     VARCHAR(255) UNIQUE,
                        fullName  VARCHAR(255),
-                       role      ENUM('admin', 'user') DEFAULT 'user',
+                       role      tinyint DEFAULT 1,
                        status    TINYINT DEFAULT 0,
                        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

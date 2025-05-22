@@ -24,7 +24,7 @@
                             rs.getString("password"),
                             rs.getString("email"),
                             rs.getString("fullName"),
-                            rs.getString("role"),
+                            rs.getInt("role"),
                             rs.getInt("status"),
                             rs.getTimestamp("createdAt")
                     ));

@@ -157,12 +157,13 @@
         <div class="login-container col-12 col-md-8">
             <h3>Đăng nhập với</h3>
             <div class="social-buttons">
-                <button class="btn-social" onclick="window.location.href='${pageContext.request.contextPath}/login/google'">
+                <button class="btn-social" onclick="window.location.href='${pageContext.request.contextPath}/login?action=google'">
                     <img src="${pageContext.request.contextPath}/assets/images/logos/google-logo.png" alt="Google"
                          style="width: 20px; height: 20px;">
                     &nbsp;Google
                 </button>
-                <button class="btn-social">
+
+                <button class="btn-social" href="login?action=facebook">
                     <img src="${pageContext.request.contextPath}/assets/images/logos/Facebook.png" alt="Facebook"
                          style="width: 20px; height: 20px;">
                     &nbsp;Facebook

@@ -20,12 +20,13 @@
       --drumhub-dark: #FFA500;     /* Màu cam vàng đậm */
       --drumhub-accent: #FF6347;   /* Màu phụ tomato */
     }
-
     /* Nền header/footer */
     .navbar, .footer {
       background-color: var(--drumhub-primary) !important;
     }
-
+    #main-content {
+      padding-top: 50px; /* Điều chỉnh giá trị này theo chiều cao của navbar */
+    }
     /* Nút chính */
     .btn-primary {
       background-color: var(--drumhub-dark);
@@ -66,8 +67,9 @@
       border-color: var(--drumhub-dark);
     }
     .btn-outline-primary:hover {
-      background-color: var(--drumhub-primary);
+      background-color: var(--bs-primary);
     }
+
     /* Button styling */
     .btn-primary {
       background-color: var(--drumhub-dark);
@@ -90,6 +92,7 @@
       background-color: var(--bs-primary);
       color: #000;
     }
+
     .nav-link:hover {
       color: var(--drumhub-dark) !important;
     }
@@ -97,12 +100,32 @@
       color: #000 !important;
       font-weight: 500;
     }
+
+    /* Sửa lỗi bị đè phần tử */
+    .row {
+      margin-top: 20px;
+    }
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .custom-box {
+      background-color: var(--drumhub-secondary);
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .custom-box:hover {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
   </style>
 </head>
 <body>
 <!-- Header -->
 <jsp:include page="header.jsp"/>
-<br><br><br><br>
+<div id="main-content" class="container mt-5">
 <div id="carouselExampleIndicators" class="carousel slide">
   <div class="carousel-indicators" id="carouselIndicators"></div>
   <div class="carousel-inner" id="carouselItems"></div>
@@ -170,71 +193,7 @@
 
   </div>
 </div>
-<div class="container mt-5">
-  <h2 class="text-start mb-4">SẢN PHẨM NỔI BẬT</h2>
-  <div class="row row-cols-1 row-cols-md-3 g-4" id="featuredProducts">
-    <c:forEach var="product" items="${featuredProducts}">
-      <div class="col">
-        <div class="card h-100">
-          <img src="/assets/images/data/${product.imageMain}" class="card-img-top" alt="${product.name}">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title"><a href="/product/${product.id}"
-                                      class="text-decoration-none">${product.name}</a></h5>
-            <p class="card-text">${product.description}</p>
-            <fmt:setLocale value="vi_VN"/>
-            <p class="card-text">
-                            <span style="text-decoration: line-through;">
-                                <fmt:formatNumber value="${product.price}" type="currency"/>
-                            </span>
-              <strong class="text-danger">
-                <fmt:formatNumber value="${product.salePrice}" type="currency"/>
-              </strong>
-            </p>
-
-            <a href="/product/${product.id}" class="btn btn-primary text-black mt-auto">Xem thêm</a>
-          </div>
-        </div>
-      </div>
-    </c:forEach>
-  </div>
 </div>
-<div class="container mt-5">
-  <h2 class="text-start mb-4">DANH MỤC SẢN PHẨM</h2>
-  <div class="row row-cols-1 row-cols-md-3 g-4" id="categories">
-    <c:forEach var="category" items="${categories}">
-      <div class="col">
-        <div class="card h-100">
-          <img src="/assets/images/data/${category.image}" class="card-img-top" alt="${category.name}">
-          <div class="card-body">
-            <h5 class="card-title">${category.name}</h5>
-            <p class="card-text">${category.description}</p>
-            <a href="${pageContext.request.contextPath}/products" class="btn btn-primary text-black mt-auto">Xem thêm</a>
-          </div>
-        </div>
-      </div>
-    </c:forEach>
-  </div>
-</div>
-
-<div class="container mt-5">
-  <h2 class="text-start mb-4">TIN TỨC - SỰ KIỆN</h2>
-  <div class="row row-cols-1 row-cols-md-3 g-4" id="posts">
-    <c:forEach var="post" items="${latestPosts}">
-      <div class="col">
-        <div class="card h-100">
-          <img src="/assets/images/data/${post.image}" class="card-img-top" alt="${post.title}">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">${post.title}</h5>
-            <p class="card-text">${post.content}</p>
-            <a href="${pageContext.request.contextPath}/posts" class="btn btn-primary mt-auto w-100 text-black">Xem chi
-              tiết</a>
-          </div>
-        </div>
-      </div>
-    </c:forEach>
-  </div>
-</div>
-
 <section id="about" class="py-5 bg-warning mt-5">
   <div class="container">
     <div class="row align-items-center">
@@ -264,31 +223,5 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function addToCart(productId) {
-    fetch('${pageContext.request.contextPath}/api/cart/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        productId: productId,
-        quantity: 1
-      })
-    })
-            .then(response => response.json())
-            .then(data => {
-              if(data.success) {
-                alert('Đã thêm sản phẩm vào giỏ hàng');
-              } else {
-                alert(data.message || 'Có lỗi xảy ra');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
-            });
-  }
-</script>
 </body>
 </html>

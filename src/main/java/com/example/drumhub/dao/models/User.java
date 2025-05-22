@@ -9,14 +9,14 @@ public class User {
     private String password;
     private String email;
     private String fullName;
-    private String role;
+    private int role;
     private int status;
     private Timestamp createdAt;
 
     public User() {
     }
 
-    public User(int id, String username, String password, String email, String fullName, String role, int status, Timestamp createdAt) {
+    public User(int id, String username, String password, String email, String fullName, int role, int status, Timestamp createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -69,11 +69,11 @@ public class User {
         this.fullName = fullName;
     }
 
-    public String getRole() {
+    public int getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(int role) {
         this.role = role;
     }
 
