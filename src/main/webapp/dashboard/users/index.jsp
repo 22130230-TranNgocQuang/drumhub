@@ -64,7 +64,7 @@
                             <td>${user.fullName}</td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${user.role == 'admin'}">Admin</c:when>
+                                    <c:when test="${user.role == '1'}">Admin</c:when>
                                     <c:otherwise>Người dùng</c:otherwise>
                                 </c:choose>
                             </td>
