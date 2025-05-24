@@ -71,6 +71,20 @@ public class Cart implements Serializable {
         this.orderId = orderId;
     }
 
+    public int getProductId() {
+        if (this.product != null) {
+            return this.product.getId();
+        }
+        return -1; // hoặc throw exception nếu bạn muốn
+    }
+
+
+    public void setProductId(int productId) {
+        if (this.product == null) {
+            this.product = new Product(); // tránh NullPointerException
+        }
+        this.product.setId(productId);
+    }
 
 
 }

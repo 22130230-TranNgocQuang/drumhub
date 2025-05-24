@@ -1,5 +1,7 @@
 package com.example.drumhub.controller;
 
+import com.example.drumhub.dao.models.Cart;
+import com.example.drumhub.dao.models.Product;
 import com.example.drumhub.dao.models.User;
 import com.example.drumhub.services.CartService;
 import jakarta.servlet.*;
@@ -40,19 +42,36 @@ public class CartController extends HttpServlet {
         //lấy dữ liệu từ view id, soluong
         //xử lý ceate trong model
         //
+        HttpSession session = request.getSession(false);
+        User user = (User) session.getAttribute("user");
+        //int userId = (user != null) ? user.getId() : 0;
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().println("Vui lòng đăng nhập");
+            return;
+        }
+
         int productId = Integer.parseInt(request.getParameter("productId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         double price = Double.parseDouble(request.getParameter("price"));
+        int userId = user.getId();
+        Product product = new Product();
+        Cart cart = new Cart();
 
-        HttpSession session = request.getSession(false);
-        User user = (User) session.getAttribute("user");
-        int userId = (user != null) ? user.getId() : 0;
+        cart.setUserId(userId);
+        product.setId(productId);
+        cart.setProduct(product);
+        cart.setQuantity(quantity);
+        cart.setPrice(price);
 
-        CartService service = new CartService();
-        boolean result = false;
-        result = service.addCart(userId, productId, quantity, price);
+        CartService cartService = new CartService();
+        boolean success = cartService.addCart(userId, productId, quantity, price);
 
-        request.setAttribute("result", result);
-        response.sendRedirect(request.getContextPath() + "/list-product?action=detail&id=" + productId);
+        if (success) {
+            response.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Thêm giỏ hàng thất bại.");
+        }
     }
 }
