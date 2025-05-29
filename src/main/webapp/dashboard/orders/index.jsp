@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Dashboard - Quản lý Người dùng</title>
+    <title>Admin Dashboard - Quản lý Đơn hàng</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -21,16 +21,16 @@
             <h4 class="text-white mb-4">Quản trị</h4>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="#">Quản lý người dùng</a>
+                    <a class="nav-link text-white" href="/dashboard/users">Quản lý người dùng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/orders">Quản lý đơn hàng</a>
+                    <a class="nav-link text-white active" href="#">Quản lý đơn hàng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/products">Quản lý sản phẩm</a>
+                    <a class="nav-link text-white" href="/dashboard/products">Quản lý sản phẩm</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/statistics">Thống kê</a>
+                    <a class="nav-link text-white" href="/dashboard/statistics">Thống kê</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-white" href="/logout">Đăng xuất</a>
@@ -40,44 +40,37 @@
 
         <!-- Main Content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-            <h2>Danh sách người dùng</h2>
+            <h2>Danh sách đơn hàng</h2>
             <div class="table-responsive">
-                <table id="userTable" class="table table-striped table-bordered">
+                <table id="orderTable" class="table table-striped table-bordered">
                     <thead class="table-primary">
                     <tr>
                         <th>ID</th>
-                        <th>Tên đăng nhập</th>
-                        <th>Email</th>
-                        <th>Họ tên</th>
-                        <th>Vai trò</th>
+                        <th>Mã người dùng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
                         <th>Trạng thái</th>
-                        <th>Ngày tạo</th>
                         <th>Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="user" items="${users}">
+                    <c:forEach var="order" items="${orders}">
                         <tr>
-                            <td>${user.id}</td>
-                            <td>${user.username}</td>
-                            <td>${user.email}</td>
-                            <td>${user.fullName}</td>
+                            <td>${order.id}</td>
+                            <td>${order.userId}</td>
+                            <td><fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm" /></td>
+                            <td><fmt:formatNumber value="${order.totalPrice}" type="currency"/></td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${user.role == '1'}">Admin</c:when>
-                                    <c:otherwise>Người dùng</c:otherwise>
+                                    <c:when test="${order.status eq 'completed'}">Hoàn tất</c:when>
+                                    <c:when test="${order.status eq 'cancelled'}">Đã hủy</c:when>
+                                    <c:otherwise>Đang xử lý</c:otherwise>
                                 </c:choose>
                             </td>
                             <td>
-                                <c:choose>
-                                    <c:when test="${user.status == 1}">Kích hoạt</c:when>
-                                    <c:otherwise>Khóa</c:otherwise>
-                                </c:choose>
-                            </td>
-                            <td>${user.createdAt}</td>
-                            <td>
-                                <a href="/edit-user?id=${user.id}" class="btn btn-sm btn-warning">Sửa</a>
-                                <a href="/delete-user?id=${user.id}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa không?')">Xóa</a>
+                                <a href="${pageContext.request.contextPath}/dashboard/orders/edit?id=${order.id}" class="btn btn-sm btn-warning">Sửa</a>
+                                <a href="/delete-order?id=${order.id}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này không?')">Xóa</a>
                             </td>
                         </tr>
                     </c:forEach>
@@ -88,7 +81,7 @@
     </div>
 </div>
 
-<!-- jQuery (cần cho DataTables) -->
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
 <!-- Bootstrap Bundle -->
@@ -101,7 +94,7 @@
 <!-- Kích hoạt DataTable -->
 <script>
     $(document).ready(function () {
-        $('#userTable').DataTable({
+        $('#orderTable').DataTable({
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
             }
