@@ -218,14 +218,27 @@
             .then(response => response.json())
             .then(data => {
                 if(data.success) {
-                    alert('Đã thêm sản phẩm vào giỏ hàng');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm vào giỏ hàng',
+                        showConfirmButton: false,
+                        timer: 1200
+                    });
                 } else {
-                    alert(data.message || 'Có lỗi xảy ra');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng',
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi hệ thống',
+                    text: 'Có lỗi xảy ra',
+                });
             });
     }
 </script>

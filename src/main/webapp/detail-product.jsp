@@ -166,7 +166,7 @@
                     <button class="btn btn-danger flex-grow-1 d-flex align-items-center justify-content-center gap-2"
                             onclick="buyNow(${product.id}, getQuantity())">
                         <i class="bi bi-lightning-fill"></i>
-                        <span>Mua ngay</span>
+                        Mua ngay
                     </button>
                 </div>
 
@@ -247,7 +247,7 @@
         })
 
             .then(response => {
-                if (response.redirected) {
+                if (response.ok) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Đã thêm vào giỏ hàng',
@@ -275,11 +275,46 @@
 
     // Mua ngay
     function buyNow(productId, quantity) {
-        addToCart(productId, quantity);
-        // Sau khi thêm vào giỏ, chuyển đến trang thanh toán
-        setTimeout(() => {
-            window.location.href = '${pageContext.request.contextPath}/checkout';
-        }, 1500);
+        fetch('${pageContext.request.contextPath}/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'addCart',
+                productId: productId,
+                quantity: quantity,
+                price: document.querySelector('[name="price"]').value
+            })
+        })
+
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm vào giỏ hàng',
+                        showConfirmButton: false,
+                        timer: 1000
+                    }) .then(() => {
+                        window.location.href = '${pageContext.request.contextPath}/checkout';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        tile: 'Thêm thất bại',
+                        showConfirmButton: true,
+                    });
+                }
+            })
+
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi hệ thống',
+                text: 'Không thể thêm sản phẩm vào giỏ hàng',
+                showConfirmButton: true,
+            });
+        });
     }
 
     // Khởi tạo tooltip
