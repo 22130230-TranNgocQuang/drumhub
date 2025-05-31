@@ -1,100 +1,96 @@
 package com.example.drumhub.dao;
 
-import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.Cart;
+import com.example.drumhub.dao.models.Product;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CartDAO {
-    private final Statement statement;
+    private Connection conn;
 
-    public CartDAO() throws SQLException {
-        this.statement = DBConnect.getStatement();
+    public CartDAO(Connection conn) throws SQLException {
+        this.conn = conn;
     }
 
-    // Create (Insert)
+    // Thêm sản phẩm vào giỏ hàng
     public boolean addCart(Cart cart) {
-        try {
-            String query = "INSERT INTO carts (productId, userId, quantity, price, orderId) VALUES (" +
-                    cart.getProduct().getId() + ", " + cart.getUserId() + ", " + cart.getQuantity() + ", " +
-                    cart.getPrice() + ", " + (cart.getOrderId() == 0 ? "NULL" : cart.getOrderId()) + ")";
-            statement.executeUpdate(query);
-            return true;
+        String sql = "INSERT INTO carts (productId, userId, quantity, price, orderId) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, cart.getProduct().getId());
+            stmt.setInt(2, cart.getUserId());
+            stmt.setInt(3, cart.getQuantity());
+            stmt.setDouble(4, cart.getPrice());
+
+            if (cart.getOrderId() == 0) {
+                stmt.setNull(5, Types.INTEGER);
+            } else {
+                stmt.setInt(5, cart.getOrderId());
+            }
+
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    // Read (Get by ID)
-    public Cart getCartById(int id) {
-        try {
-            String query = "SELECT * FROM carts WHERE id = " + id;
-            ResultSet rs = statement.executeQuery(query);
-            if (rs.next()) {
-                return mapResultSetToCart(rs);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    // Gán orderId vào các cart chưa có order của user
+    public boolean assignOrderIdToCartItems(int userId, int orderId) throws SQLException {
+        String sql = "UPDATE carts SET orderId = ? WHERE userId = ? AND orderId IS NULL";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, userId);
+            return stmt.executeUpdate() > 0;
         }
-        return null;
     }
 
-    // Read (Get all carts by userId)
-    public List<Cart> getCartsByUserId(int userId) {
+    // Xoá tất cả cart chưa thanh toán của user
+    public boolean deleteUnorderedCartsByUser(int userId) {
+        String sql = "DELETE FROM carts WHERE userId = ? AND orderId IS NULL";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Helper: chuyển ResultSet thành Cart
+    private Cart mapResultSetToCart(ResultSet rs) throws SQLException {
+        Cart cart = new Cart();
+        Product product = new Product();
+        product.setId(rs.getInt("productId"));
+
+        cart.setId(rs.getInt("id"));
+        cart.setProduct(product); // Chỉ set ID; nếu cần đầy đủ, bạn phải gọi ProductDAO.getById()
+        cart.setUserId(rs.getInt("userId"));
+        cart.setQuantity(rs.getInt("quantity"));
+        cart.setPrice(rs.getDouble("price"));
+        cart.setOrderId(rs.getInt("orderId"));
+
+        return cart;
+    }
+
+    public List<Cart> getCartByUserWithoutOrder(int userId) {
         List<Cart> carts = new ArrayList<>();
-        try {
-            String query = "SELECT * FROM carts WHERE userId = " + userId;
-            ResultSet rs = statement.executeQuery(query);
+        String sql = "SELECT * FROM carts WHERE userId = ? AND orderId IS NULL";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
                 carts.add(mapResultSetToCart(rs));
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return carts;
     }
 
-    // Update
-    public void updateCart(Cart cart) {
-        try {
-            String query = "UPDATE carts SET quantity = " + cart.getQuantity() + ", price = " + cart.getPrice() +
-                    ", orderId = " + (cart.getOrderId() == 0 ? "NULL" : cart.getOrderId()) +
-                    " WHERE id = " + cart.getId();
-            statement.executeUpdate(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-  /*  // Delete
-    public void deleteCart(int id) {
-        try {
-            String query = "DELETE FROM carts WHERE id = " + id;
-            statement.executeUpdate(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    // Helper method to map ResultSet to Cart
-    private Cart mapResultSetToCart(ResultSet rs) {
-        try {
-            Cart cart = new Cart();
-            cart.setId(rs.getInt("id"));
-            cart.setProduct(new ProductDAO().getById(rs.getInt("productId"))); // Assume ProductDAO exists
-            cart.setUserId(rs.getInt("userId"));
-            cart.setQuantity(rs.getInt("quantity"));
-            cart.setPrice(rs.getDouble("price"));
-            cart.setOrderId(rs.getInt("orderId"));
-            return cart;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

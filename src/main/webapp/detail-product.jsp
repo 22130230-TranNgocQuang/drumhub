@@ -275,6 +275,9 @@
 
     // Mua ngay
     function buyNow(productId, quantity) {
+        const priceInput = document.querySelector('[name="price"]');
+        const price = priceInput ? priceInput.value : 0;
+
         fetch('${pageContext.request.contextPath}/cart', {
             method: 'POST',
             headers: {
@@ -284,7 +287,7 @@
                 action: 'addCart',
                 productId: productId,
                 quantity: quantity,
-                price: document.querySelector('[name="price"]').value
+                price: price
             })
         })
 
@@ -295,26 +298,26 @@
                         title: 'Đã thêm vào giỏ hàng',
                         showConfirmButton: false,
                         timer: 1000
-                    }) .then(() => {
+                    }).then(() => {
                         window.location.href = '${pageContext.request.contextPath}/checkout';
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        tile: 'Thêm thất bại',
+                        title: 'Thêm thất bại',
                         showConfirmButton: true,
                     });
                 }
             })
 
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi hệ thống',
-                text: 'Không thể thêm sản phẩm vào giỏ hàng',
-                showConfirmButton: true,
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi hệ thống',
+                    text: 'Không thể thêm sản phẩm vào giỏ hàng',
+                    showConfirmButton: true,
+                });
             });
-        });
     }
 
     // Khởi tạo tooltip

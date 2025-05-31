@@ -9,7 +9,10 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet(name = "CartController", value = "/cart")
 public class CartController extends HttpServlet {
@@ -55,19 +58,16 @@ public class CartController extends HttpServlet {
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         double price = Double.parseDouble(request.getParameter("price"));
         int userId = user.getId();
-        Product product = new Product();
-        Cart cart = new Cart();
 
-        cart.setUserId(userId);
-        product.setId(productId);
-        cart.setProduct(product);
-        cart.setQuantity(quantity);
-        cart.setPrice(price);
+        Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
 
-        CartService cartService = new CartService();
+        CartService cartService = new CartService(conn);
+
         boolean success = cartService.addCart(userId, productId, quantity, price);
 
         if (success) {
+            List<Cart> updatedCart = cartService.getCartByUserWithoutOrder(userId);
+            session.setAttribute("cart", updatedCart);
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
