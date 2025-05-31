@@ -3,10 +3,7 @@ package com.example.drumhub.dao;
 import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.User;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -158,4 +155,16 @@ public class UserDAO {
                 rs.getTimestamp("createdAt")
         );
     }
+    public boolean updateUserStatusByEmail(String email) {
+        String sql = "UPDATE users SET status = 1 WHERE email = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
