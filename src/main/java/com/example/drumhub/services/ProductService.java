@@ -28,6 +28,8 @@ public class ProductService {
         try {
             return dao.getById(id);
         } catch (NumberFormatException e) {
+            System.err.println("Lỗi khi gọi getById(" + id + "): " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

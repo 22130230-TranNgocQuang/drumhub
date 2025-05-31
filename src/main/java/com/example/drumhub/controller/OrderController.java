@@ -54,7 +54,7 @@ public class OrderController extends HttpServlet {
         boolean success = orderService.createOrder(order);
 
         if (success) {
-            response.sendRedirect("/order/success.jsp");
+            response.sendRedirect("/order");
         } else {
             request.setAttribute("error", "Tạo đơn hàng thất bại");
 
