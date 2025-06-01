@@ -1,7 +1,6 @@
 package com.example.drumhub.controller;
 
 import com.example.drumhub.dao.models.Cart;
-import com.example.drumhub.dao.models.Product;
 import com.example.drumhub.dao.models.User;
 import com.example.drumhub.services.CartService;
 import jakarta.servlet.*;
@@ -11,7 +10,6 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "CartController", value = "/cart")
@@ -36,8 +34,48 @@ public class CartController extends HttpServlet {
                     throw new RuntimeException(e);
                 }
                 break;
-
+            case "detail":
+                try {
+                    showCartDetails(request, response);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
         }
+    }
+
+    private void showCartDetails(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+        response.setContentType("application/json");
+
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (session == null || session.getAttribute("user") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().println("{\"error\": \"Chưa đăng nhập\"}");
+            return;
+        }
+
+
+        int userId = user.getId();
+        Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+        CartService cartService = new CartService(conn);
+        List<Cart> cartItems = cartService.getCartByUserWithoutOrder(userId);
+
+        StringBuilder json = new StringBuilder("[");
+        for (int i = 0; i < cartItems.size(); i++) {
+            Cart item = cartItems.get(i);
+            json.append("{")
+                    .append("\"productId\":").append(item.getProduct().getId()).append(",")
+                    .append("\"quantity\":").append(item.getQuantity()).append(",")
+                    .append("\"price\":").append(item.getPrice())
+                    .append("}");
+            if (i < cartItems.size() - 1) json.append(",");
+        }
+        json.append("]");
+
+        response.getWriter().write(json.toString());
+
     }
 
     private void addCart(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
