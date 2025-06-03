@@ -18,6 +18,27 @@ import java.util.List;
 public class CartController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (user == null) {
+            // Nếu chưa đăng nhập, chuyển hướng về trang login
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        int userId = user.getId();
+        Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+        try {
+            CartService cartService = new CartService(conn);
+            List<Cart> cartItems = cartService.getCartByUserWithoutOrder(userId);
+            request.setAttribute("cartItems", cartItems);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("cart.jsp");
+            dispatcher.forward(request, response);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Không thể tải giỏ hàng.");
+        }
     }
 
     @Override
