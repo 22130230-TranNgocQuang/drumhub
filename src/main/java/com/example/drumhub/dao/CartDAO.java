@@ -59,32 +59,48 @@ public class CartDAO {
         }
     }
 
-    // Helper: chuyển ResultSet thành Cart
-    private Cart mapResultSetToCart(ResultSet rs) throws SQLException {
-        Cart cart = new Cart();
-        Product product = new Product();
-        product.setId(rs.getInt("productId"));
-
-        cart.setId(rs.getInt("id"));
-        cart.setProduct(product); // Chỉ set ID; nếu cần đầy đủ, bạn phải gọi ProductDAO.getById()
-        cart.setUserId(rs.getInt("userId"));
-        cart.setQuantity(rs.getInt("quantity"));
-        cart.setPrice(rs.getDouble("price"));
-        cart.setOrderId(rs.getInt("orderId"));
-
-        return cart;
+    // Xoá cart chưa thanh toán với userId và productId (cho flow Mua ngay)
+    public boolean deleteUnorderedCartsByProduct(int userId, int productId) {
+        String sql = "DELETE FROM carts WHERE userId = ? AND productId = ? AND orderId IS NULL";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
+    //lấy danh sách cart cho user kèm thông tin sp
     public List<Cart> getCartByUserWithoutOrder(int userId) {
         List<Cart> carts = new ArrayList<>();
-        String sql = "SELECT * FROM carts WHERE userId = ? AND orderId IS NULL";
+        String sql = "SELECT c.*, " +
+                "p.name AS productName, p.image AS productImage, " +
+                "p.price AS productPrice " +
+                "FROM carts c " +
+                "JOIN products p ON c.productId = p.id " +
+                "WHERE c.userId = ? AND c.orderId IS NULL";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                carts.add(mapResultSetToCart(rs));
+                Cart cart = new Cart();
+                Product product = new Product();
+
+                product.setId(rs.getInt("productId"));
+                product.setName(rs.getString("productName"));
+                product.setImage(rs.getString("productImage"));
+
+                cart.setId(rs.getInt("id"));
+                cart.setProduct(product);
+                cart.setUserId(rs.getInt("userId"));
+                cart.setQuantity(rs.getInt("quantity"));
+                cart.setPrice(rs.getDouble("productPrice"));
+                cart.setOrderId(rs.getInt("orderId"));
+                carts.add(cart);
             }
 
         } catch (SQLException e) {

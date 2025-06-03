@@ -1,8 +1,10 @@
 package com.example.drumhub.controller;
 
 import com.example.drumhub.dao.models.Cart;
+import com.example.drumhub.dao.models.Product;
 import com.example.drumhub.dao.models.User;
 import com.example.drumhub.services.CartService;
+import com.example.drumhub.services.ProductService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -41,8 +43,47 @@ public class CartController extends HttpServlet {
                     throw new RuntimeException(e);
                 }
                 break;
+            case "buyNow":
+                try {
+                    buyNow(request, response);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            default:
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
+
+    private void buyNow(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().println("Vui lòng đăng nhập");
+            return;
+        }
+
+        int productId = Integer.parseInt(request.getParameter("productId"));
+        int quantity = Integer.parseInt(request.getParameter("quantity"));
+        double price = Double.parseDouble(request.getParameter("price"));
+
+        // Lấy thông tin sản phẩm
+        ProductService service = new ProductService();
+        Product product = service.getDetailById(productId);
+
+        Cart buyNowItem = new Cart();
+        buyNowItem.setProduct(product);
+        buyNowItem.setQuantity(quantity);
+        buyNowItem.setPrice(price);
+        buyNowItem.setUserId(user.getId());
+        buyNowItem.setOrderId(0);
+
+        // Lưu vào session
+        session.setAttribute("buyNowItem", buyNowItem);
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
 
     private void showCartDetails(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         response.setContentType("application/json");

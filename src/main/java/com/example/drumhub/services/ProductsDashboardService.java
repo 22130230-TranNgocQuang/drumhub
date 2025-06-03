@@ -5,7 +5,7 @@ import com.example.drumhub.dao.models.Product;
 
 import java.util.List;
 
-public class ProductDashboardService {
+public class ProductsDashboardService {
     private ProductDashboardDAO dao = new ProductDashboardDAO();
 
     public List<Product> getAll() {
