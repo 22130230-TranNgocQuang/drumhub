@@ -39,77 +39,47 @@ public class OrderController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.sendRedirect(request.getContextPath() + "/cart.jsp");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        JSONObject json = new JSONObject();
-
         try {
-            // Lấy user từ session
+            // Kiểm tra đăng nhập
             User user = (User) request.getSession().getAttribute("user");
             if (user == null) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                json.put("message", "Bạn chưa đăng nhập.");
-                out.print(json);
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
                 return;
             }
 
             // Lấy danh sách cartId được chọn
             String[] selectedCartIds = request.getParameterValues("selectedCartIds");
             if (selectedCartIds == null || selectedCartIds.length == 0) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                json.put("message", "Vui lòng chọn ít nhất một sản phẩm để thanh toán.");
-                out.print(json);
+                request.setAttribute("error", "Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.");
+                request.getRequestDispatcher("/cart.jsp").forward(request, response);
                 return;
             }
 
-            // Chuyển thành List<Integer>
             List<Integer> cartIdList = Arrays.stream(selectedCartIds)
                     .map(Integer::parseInt)
                     .collect(Collectors.toList());
 
-            // Lấy danh sách cart được chọn
             List<Cart> selectedCarts = cartDAO.getSelectedCartsByIds(user.getId(), cartIdList);
 
             if (selectedCarts.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                json.put("message", "Không tìm thấy sản phẩm hợp lệ để thanh toán.");
-                out.print(json);
+                request.setAttribute("error", "Không tìm thấy sản phẩm hợp lệ.");
+                request.getRequestDispatcher("/cart.jsp").forward(request, response);
                 return;
             }
 
-            // Tính tổng tiền
-            double totalPrice = selectedCarts.stream()
-                    .mapToDouble(c -> c.getPrice() * c.getQuantity())
-                    .sum();
-
-            // Tạo đơn hàng
-            Order order = new Order();
-            order.setUserId(user.getId());
-            order.setOrderDate(new Timestamp(System.currentTimeMillis()));
-            order.setTotalPrice(totalPrice);
-            order.setStatus("Chờ xử lý");
-
-            int orderId = orderService.createOrder(order);
-
-            // Cập nhật orderId cho từng cart
-            for (Cart cart : selectedCarts) {
-                cartDAO.updateOrderId(cart.getId(), orderId);
-            }
-
-            json.put("success", true);
-            json.put("message", "Đặt hàng thành công!");
-            json.put("orderId", orderId);
-            out.print(json);
+            // ✅ Gửi selectedCarts sang order.jsp để nhập thông tin thanh toán
+            request.setAttribute("cartItems", selectedCarts);
+            request.getRequestDispatcher("/order.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            json.put("message", "Có lỗi xảy ra trong quá trình đặt hàng.");
-            out.print(json);
+            request.setAttribute("error", "Đã xảy ra lỗi khi xử lý đơn hàng.");
+            request.getRequestDispatcher("/cart.jsp").forward(request, response);
         }
     }
 

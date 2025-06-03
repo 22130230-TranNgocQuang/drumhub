@@ -127,23 +127,42 @@ public class CartDAO {
     public List<Cart> getSelectedCartsByIds(int userId, List<Integer> ids) throws SQLException {
         List<Cart> carts = new ArrayList<>();
         String placeholders = ids.stream().map(id -> "?").collect(Collectors.joining(","));
-        String sql = "SELECT * FROM carts WHERE userId = ? AND id IN (" + placeholders + ")";
+        String sql = "SELECT c.*, p.name AS product_name, p.image AS product_image " +
+                "FROM carts c " +
+                "JOIN products p ON c.productId = p.id " +
+                "WHERE c.userId = ? AND c.id IN (" + placeholders + ")";
+
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             for (int i = 0; i < ids.size(); i++) {
-                ps.setInt(i + 2, ids.get(i)); // +2 vì vị trí đầu tiên là userId
+                ps.setInt(i + 2, ids.get(i));
             }
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Cart cart = new Cart();
+                cart.setId(rs.getInt("id"));
+                cart.setUserId(rs.getInt("userId"));
+                cart.setQuantity(rs.getInt("quantity"));
+                cart.setPrice(rs.getDouble("price"));
+                cart.setOrderId(rs.getInt("orderId"));
+
+                // Gán product
+                Product product = new Product();
+                product.setName(rs.getString("product_name"));
+                product.setImage(rs.getString("product_image"));
+                cart.setProduct(product);
+
                 carts.add(cart);
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+
         return carts;
     }
+
 
     public boolean updateOrderId(int cartId, int orderId) {
         String sql = "UPDATE carts SET orderId = ? WHERE id = ?";

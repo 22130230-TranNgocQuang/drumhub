@@ -75,9 +75,9 @@
         </c:when>
         <c:otherwise>
             <div class="mb-2">
-                <input type="checkbox" id="checkAll"/> Chọn tất cả
+                <input type="checkbox" id="checkAll" /> Chọn tất cả
             </div>
-            <form id="orderForm" method="POST" action="/order">
+            <form id="orderForm" method="POST" action="${pageContext.request.contextPath}/order">
                 <table class="table table-bordered align-middle text-center">
                     <thead class="table-light">
                     <tr>
@@ -93,7 +93,7 @@
                     <tbody>
                     <c:forEach var="item" items="${cartItems}">
                         <tr>
-                            <td><input type="checkbox" name="selectedCartIds" value="${item.id}"/></td>
+                            <td><input type="checkbox" name="selectedCartIds" value="${item.id}" checked/></td>
                             <td style="width: 100px;">
                                 <img src="${pageContext.request.contextPath}/assets/images/data/${item.product.image}"
                                      alt="${item.product.name}" class="img-fluid"/>
@@ -128,6 +128,11 @@
                     </button>
                 </div>
             </form>
+            <div id="orderSummary" class="mt-3 text-end">
+                <strong>Tổng đơn hàng: </strong>
+                <span id="totalPriceText" class="price-text">₫0</span>
+            </div>
+
         </c:otherwise>
     </c:choose>
 </main>
@@ -139,20 +144,23 @@
 <script>
     const contextPath = '${pageContext.request.contextPath}';
 
-    // Chặn submit nếu chưa chọn sản phẩm
-    document.getElementById("orderForm").addEventListener("submit", function (e) {
-        const checked = document.querySelectorAll('input[name="selectedCartIds"]:checked');
-        if (checked.length === 0) {
-            e.preventDefault();
-            Swal.fire('Cảnh báo', 'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.', 'warning');
-        }
-    });
+    // Tính tổng đơn hàng được chọn
+    function updateTotalPrice() {
+        let total = 0;
+        document.querySelectorAll('input[name="selectedCartIds"]:checked').forEach(cb => {
+            const row = cb.closest('tr');
+            const priceText = row.querySelector('td:nth-child(4)').innerText;
+            const quantityInput = row.querySelector('.quantity-input');
+            const price = parseFloat(priceText.replace(/[₫,]/g, '')) || 0;
+            const quantity = parseInt(quantityInput.value) || 1;
+            total += price * quantity;
+        });
 
-    // Chọn tất cả
-    document.getElementById("checkAll").addEventListener("change", function (e) {
-        const checkboxes = document.querySelectorAll('input[name="selectedCartIds"]');
-        checkboxes.forEach(cb => cb.checked = e.target.checked);
-    });
+        document.getElementById("totalPriceText").textContent = total.toLocaleString('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        });
+    }
 
     // Xác nhận xoá sản phẩm
     function confirmDelete(cartId) {
@@ -167,7 +175,6 @@
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Sử dụng URLSearchParams thay vì FormData
                 const params = new URLSearchParams();
                 params.append('action', 'remove');
                 params.append('cartId', cartId);
@@ -179,9 +186,7 @@
                     },
                     body: params
                 }).then(res => {
-                    if (res.ok) {
-                        return res.text();
-                    }
+                    if (res.ok) return res.text();
                     throw new Error(res.statusText);
                 }).then(text => {
                     Swal.fire({
@@ -199,15 +204,26 @@
         });
     }
 
-    window.onload = () => {
+    // Khi trang tải xong
+    window.addEventListener('load', () => {
+        // Chọn tất cả checkbox sản phẩm
+        const checkboxes = document.querySelectorAll('input[name="selectedCartIds"]');
+        checkboxes.forEach(cb => cb.checked = true);
+
+        // Cập nhật tổng tiền ban đầu
+        updateTotalPrice();
+
+        // Bắt sự kiện tick checkbox để tính lại tiền
+        checkboxes.forEach(cb => cb.addEventListener('change', updateTotalPrice));
+
+        // Bắt sự kiện cập nhật số lượng
         document.querySelectorAll('.quantity-input').forEach(input => {
-            input.onchange = function () {
+            input.addEventListener('change', function () {
                 const cartId = this.getAttribute('data-cart-id');
                 const quantity = parseInt(this.value);
 
                 if (!cartId || isNaN(quantity)) {
                     Swal.fire('Lỗi', 'Thiếu thông tin để cập nhật.', 'error');
-                    console.error("cartId hoặc quantity không hợp lệ:", cartId, quantity);
                     return;
                 }
 
@@ -229,9 +245,7 @@
                     },
                     body: params.toString()
                 }).then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => { throw new Error(text); });
-                    }
+                    if (!res.ok) return res.text().then(text => { throw new Error(text); });
                     return res.text();
                 }).then(() => {
                     Swal.fire({
@@ -239,13 +253,34 @@
                         title: 'Cập nhật thành công',
                         showConfirmButton: false,
                         timer: 1000
-                    }).then(() => location.reload());
+                    });
+                    updateTotalPrice(); // Cập nhật lại tổng tiền ngay mà không reload
                 }).catch(error => {
                     Swal.fire('Lỗi', error.message, 'error');
                 });
-            };
+            });
         });
-    };
+
+        // Bắt sự kiện "Chọn tất cả"
+        document.getElementById("checkAll").addEventListener("change", function (e) {
+            const checked = this.checked;
+            checkboxes.forEach(cb => cb.checked = checked);
+            updateTotalPrice();
+        });
+
+        // Kiểm tra trước khi submit form
+        document.getElementById("orderForm").addEventListener("submit", function (e) {
+            const checked = document.querySelectorAll('input[name="selectedCartIds"]:checked');
+            if (checked.length === 0) {
+                e.preventDefault();
+                Swal.fire('Cảnh báo', 'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.', 'warning');
+            } else {
+                const ids = [...checked].map(cb => cb.value);
+                console.log("Selected cart IDs:", ids);
+            }
+        });
+    });
 </script>
+
 </body>
 </html>
