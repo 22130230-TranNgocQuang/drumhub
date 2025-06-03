@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Dashboard - Quản lý Sản phẩm</title>
+    <title>Admin Dashboard - Quản lý Đơn hàng</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -24,10 +24,10 @@
                     <a class="nav-link text-white" href="/dashboard/users">Quản lý người dùng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/dashboard/orders">Quản lý đơn hàng</a>
+                    <a class="nav-link text-white active" href="#">Quản lý đơn hàng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white active" href="/dashboard/products">Quản lý sản phẩm</a>
+                    <a class="nav-link text-white" href="/dashboard/products">Quản lý sản phẩm</a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link text-white" href="/dashboard/statistics">Thống kê</a>
@@ -40,40 +40,42 @@
 
         <!-- Main Content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-            <h2>Danh sách sản phẩm</h2>
+            <h2>Danh sách đơn hàng</h2>
             <div class="table-responsive">
-                <table id="productTable" class="table table-striped table-bordered">
+                <table id="orderTable" class="table table-striped table-bordered">
                     <thead class="table-primary">
                     <tr>
                         <th>ID</th>
-                        <th>Tên sản phẩm</th>
-                        <th>Giá</th>
-                        <th>Danh mục</th>
+                        <th>Mã người dùng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="product" items="${products}">
+                    <c:forEach var="order" items="${orders}">
                         <tr>
-                            <td>${product.id}</td>
-                            <td>${product.name}</td>
-                            <td><fmt:formatNumber value="${product.price}" type="currency"/></td>
-                            <td>${product.categoryId}</td>
+                            <td>${order.id}</td>
+                            <td>${order.userId}</td>
+                            <td><fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm" /></td>
+                            <td><fmt:formatNumber value="${order.totalPrice}" type="currency"/></td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${product.status}">Hiển thị</c:when>
-                                    <c:otherwise>Đã ẩn</c:otherwise>
+                                    <c:when test="${order.status eq 'completed'}">Hoàn tất</c:when>
+                                    <c:when test="${order.status eq 'cancelled'}">Đã hủy</c:when>
+                                    <c:otherwise>Đang xử lý</c:otherwise>
                                 </c:choose>
                             </td>
                             <td>
-                                <a href="/edit-product?id=${product.id}" class="btn btn-sm btn-warning">Sửa</a>
-                                <a href="/dashboard/products/delete?id=${product.id}" class="btn btn-sm btn-danger"
-                                   onclick="return confirm('Bạn có chắc muốn ẩn sản phẩm này?')">Ẩn</a>
+                                <a href="${pageContext.request.contextPath}/dashboard/order/detail?id=${order.id}" class="btn btn-sm btn-primary">Chi tiết</a>
+                                <a href="/delete-order?id=${order.id}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này không?')">Xóa</a>
                             </td>
                         </tr>
                     </c:forEach>
                     </tbody>
+
                 </table>
             </div>
         </main>
@@ -83,17 +85,17 @@
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-<!-- Bootstrap JS -->
+<!-- Bootstrap Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-<!-- Activate DataTables -->
+<!-- Kích hoạt DataTable -->
 <script>
     $(document).ready(function () {
-        $('#productTable').DataTable({
+        $('#orderTable').DataTable({
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
             }
