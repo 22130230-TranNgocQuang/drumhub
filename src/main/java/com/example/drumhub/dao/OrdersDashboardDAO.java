@@ -1,7 +1,10 @@
 package com.example.drumhub.dao;
 
 import com.example.drumhub.dao.db.DBConnect;
+import com.example.drumhub.dao.models.Cart;
 import com.example.drumhub.dao.models.Order;
+import com.example.drumhub.dao.models.OrderDetailItem;
+import com.example.drumhub.dao.models.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -86,5 +89,71 @@ public class OrdersDashboardDAO {
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Lỗi khi xóa đơn hàng", e);
         }
+    }
+    public List<OrderDetailItem> getOrderDetailsByOrderId(int orderId) {
+        List<OrderDetailItem> items = new ArrayList<>();
+
+        String sql = """
+        SELECT c.id AS cartId,
+               p.id AS productId,
+               p.name,
+               (
+                SELECT pi.image
+                FROM productImages pi
+                WHERE pi.productId = p.id
+                LIMIT 1
+                )AS image,
+               c.quantity,
+               c.price
+        FROM carts c
+        JOIN products p ON c.productId = p.id
+        LEFT JOIN productImages pi ON pi.productId = p.id
+        WHERE c.orderId = ?
+    """;
+
+        try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
+            pst.setInt(1, orderId);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                OrderDetailItem item = new OrderDetailItem();
+                item.setCartId(rs.getInt("cartId"));
+                item.setProductId(rs.getInt("productId"));
+                item.setProductName(rs.getString("name"));
+                item.setProductImage(rs.getString("image"));  // lấy ảnh từ productImages
+                item.setQuantity(rs.getInt("quantity"));
+                item.setPrice(rs.getDouble("price"));
+                items.add(item);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy chi tiết đơn hàng", e);
+        }
+        return items;
+    }
+
+
+    public User getUserByOrderId(int orderId) {
+        String sql = """
+        SELECT u.*
+        FROM orders o
+        JOIN users u ON o.userId = u.id
+        WHERE o.id = ?
+    """;
+        try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
+            pst.setInt(1, orderId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setFullName(rs.getString("fullName"));
+                user.setRole(rs.getInt("role"));
+                user.setStatus(rs.getInt("status"));
+                return user;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy người đặt đơn hàng", e);
+        }
+        return null;
     }
 }
