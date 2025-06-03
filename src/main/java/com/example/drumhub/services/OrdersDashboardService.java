@@ -2,6 +2,8 @@ package com.example.drumhub.services;
 
 import com.example.drumhub.dao.OrdersDashboardDAO;
 import com.example.drumhub.dao.models.Order;
+import com.example.drumhub.dao.models.OrderDetailItem;
+import com.example.drumhub.dao.models.User;
 
 import java.util.List;
 
@@ -26,5 +28,12 @@ public class OrdersDashboardService {
 
     public boolean delete(int id) {
         return dao.delete(id);
+    }
+    public List<OrderDetailItem> getOrderDetailsByOrderId(int orderId) {
+        return dao.getOrderDetailsByOrderId(orderId);
+    }
+
+    public User getUserByOrderId(int orderId) {
+        return dao.getUserByOrderId(orderId);
     }
 }

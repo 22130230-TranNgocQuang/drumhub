@@ -11,11 +11,25 @@ public class UsersDashboardService {
 
     public List<User> getAll() {
         return dao.getAll();
-
     }
 
     public int count() {
         return dao.count();
     }
+
+    public User getById(int id) {
+        return dao.getById(id);
+    }
+
+    public void updateUser(User user) {
+        dao.updateUser(user);
+    }
+    public void softDelete(int id) {
+        dao.softDelete(id);
+    }
+    public void insert(User user) {
+        dao.insert(user);
+    }
 }
+
 
