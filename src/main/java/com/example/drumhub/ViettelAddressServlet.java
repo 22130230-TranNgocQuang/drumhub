@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 public class ViettelAddressServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
+        System.out.println("ViettelAddressServlet init() đã được gọi!");
         try {
             // Lấy token 1 lần khi servlet khởi động
             ViettelPostAPI.getToken("0346402209", "Quangtran0410");
@@ -23,6 +24,8 @@ public class ViettelAddressServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        System.out.println(">>> [DEBUG] ContextPath: " + req.getContextPath());
+
         String type = req.getParameter("type"); // province | district | ward
         String id = req.getParameter("id");     // provinceId hoặc districtId
 

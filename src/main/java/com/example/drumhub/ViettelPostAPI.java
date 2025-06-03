@@ -21,8 +21,8 @@ public class ViettelPostAPI {
         conn.setDoOutput(true);
 
         JSONObject loginData = new JSONObject();
-        loginData.put("0346402209", username);
-        loginData.put("Quangtran0410", password);
+        loginData.put("USERNAME", username);
+        loginData.put("PASSWORD", password);
 
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = loginData.toString().getBytes(StandardCharsets.UTF_8);
@@ -30,18 +30,23 @@ public class ViettelPostAPI {
         }
 
         int responseCode = conn.getResponseCode();
-        if (responseCode == 200) {
-            String response = readStream(conn.getInputStream());
-            JSONObject json = new JSONObject(response);
-            token = json.getJSONObject("data").getString("token");
-            return token;
-        } else {
-            throw new IOException("Lỗi khi đăng nhập ViettelPost: " + responseCode);
+        String responseText = readStream(
+                (responseCode == 200) ? conn.getInputStream() : conn.getErrorStream()
+        );
+
+        JSONObject json = new JSONObject(responseText);
+        if (!json.has("data") || json.isNull("data")) {
+            throw new IOException("Lỗi đăng nhập ViettelPost: " + json.optString("message", "không rõ lỗi"));
         }
+
+        token = json.getJSONObject("data").getString("token");
+        return token;
     }
+
 
     // Gọi API lấy danh sách tỉnh
     public static JSONArray getProvinces() throws IOException {
+        System.out.println(">>> [DEBUG] Gọi getProvinces()...");
         return callAPI("listProvince", null);
     }
 
@@ -63,12 +68,17 @@ public class ViettelPostAPI {
     private static JSONArray callAPI(String endpoint, JSONObject body) throws IOException {
         URL url = new URL(BASE_URL + endpoint);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Token", token); // Auth
 
-        conn.setDoOutput(true);
-        if (body != null) {
+        // 💡 Nếu body == null → GET, ngược lại thì POST
+        boolean isPost = (body != null);
+        conn.setRequestMethod(isPost ? "POST" : "GET");
+
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Token", token);
+
+        if (isPost) {
+            conn.setDoOutput(true);
+            System.out.println(">>> [DEBUG] Gửi body: " + body.toString());
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
                 os.write(input);
@@ -76,14 +86,19 @@ public class ViettelPostAPI {
         }
 
         int responseCode = conn.getResponseCode();
+        String responseText = readStream(
+                (responseCode == 200) ? conn.getInputStream() : conn.getErrorStream()
+        );
+
+        System.out.println(">>> [DEBUG] Phản hồi từ " + endpoint + ": " + responseText);
         if (responseCode == 200) {
-            String response = readStream(conn.getInputStream());
-            JSONObject json = new JSONObject(response);
+            JSONObject json = new JSONObject(responseText);
             return json.getJSONArray("data");
         } else {
             throw new IOException("Lỗi API ViettelPost: " + responseCode);
         }
     }
+
 
     private static String readStream(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
