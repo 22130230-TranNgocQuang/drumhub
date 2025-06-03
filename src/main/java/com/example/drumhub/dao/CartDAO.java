@@ -109,4 +109,18 @@ public class CartDAO {
         return carts;
     }
 
+    public boolean updateQuantity(int cartId, int userId, int quantity) {
+        String sql = "UPDATE carts SET quantity = ? WHERE id = ? AND userId = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, cartId);
+            stmt.setInt(3, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 }
