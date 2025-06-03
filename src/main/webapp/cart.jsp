@@ -144,7 +144,7 @@
         const checked = document.querySelectorAll('input[name="selectedCartIds"]:checked');
         if (checked.length === 0) {
             e.preventDefault();
-            alert("Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.");
+            Swal.fire('Cảnh báo', 'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.', 'warning');
         }
     });
 

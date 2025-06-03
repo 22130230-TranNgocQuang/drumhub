@@ -102,7 +102,6 @@
                                     <c:otherwise>
                                         <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/my-account">Tài khoản của tôi</a></li>
                                         <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/orders">Đơn hàng</a></li>
-                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/cart">Giỏ hàng</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form id="logoutForm" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
