@@ -133,7 +133,7 @@
                                         <h5 class="card-title">${product.name}</h5>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <span class="price-text">
-                                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫"/>
+                                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                                                 </span>
                                             <span class="badge ${product.status ? 'bg-success' : 'bg-secondary'}">
                                                     ${product.status ? 'Còn hàng' : 'Hết hàng'}
