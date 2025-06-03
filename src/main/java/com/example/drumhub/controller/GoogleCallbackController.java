@@ -111,7 +111,7 @@ public class GoogleCallbackController extends HttpServlet {
         session.setAttribute("user", existingAccount);
 
         // 4. Redirect về home
-        response.sendRedirect(request.getContextPath() + "/home");
+        response.sendRedirect(request.getContextPath() + "/list-product");
     }
 }
 

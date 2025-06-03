@@ -38,7 +38,7 @@ public class LoginController extends HttpServlet {
                 session.setAttribute("user", user); // Lưu người dùng vào session
 
                 // Chuyển hướng tới trang home
-                response.sendRedirect("/index.jsp");
+                response.sendRedirect("/list-product");
             } else {
                 // Nếu chưa xác minh email, thông báo yêu cầu xác minh
                 request.setAttribute("errorMessage", "Bạn cần xác minh email trước khi đăng nhập.");
@@ -61,7 +61,7 @@ public class LoginController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
-            response.sendRedirect("/index.jsp");
+            response.sendRedirect("/list-product");
         } else {
             request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
