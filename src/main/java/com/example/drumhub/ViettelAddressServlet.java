@@ -26,8 +26,8 @@ public class ViettelAddressServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         System.out.println(">>> [DEBUG] ContextPath: " + req.getContextPath());
 
-        String type = req.getParameter("type"); // province | district | ward
-        String id = req.getParameter("id");     // provinceId hoặc districtId
+        String type = req.getParameter("type");
+        String id = req.getParameter("id");
 
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
@@ -50,6 +50,7 @@ public class ViettelAddressServlet extends HttpServlet {
             out.print(data.toString());
 
         } catch (Exception e) {
+            e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             out.print("{\"error\": \"Lỗi server\"}");
         }

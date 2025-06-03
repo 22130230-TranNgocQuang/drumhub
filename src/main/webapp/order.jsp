@@ -60,6 +60,12 @@
         .btn-outline-primary:hover {
             background-color: var(--drumhub-primary);
         }
+
+        #province, #district, #ward {
+            color: #000 !important;
+            background-color: #fff !important;
+        }
+
     </style>
 </head>
 <body>
@@ -168,16 +174,31 @@
     const districtSelect = document.getElementById("district");
     const wardSelect = document.getElementById("ward");
 
+    // Hàm tạo option
+    function appendOption(selectEl, value, text) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = text;
+        selectEl.appendChild(option);
+    }
+
+    // Load danh sách tỉnh
     fetch(`${contextPath}/api/viettel-address?type=province`)
         .then(res => res.json())
         .then(data => {
+            console.log("[DEBUG] Provinces:", data);
             data.forEach(p => {
-                provinceSelect.innerHTML += `<option value="${p.PROVINCE_ID}">${p.PROVINCE_NAME}</option>`;
+                appendOption(provinceSelect, p.PROVINCE_ID, p.PROVINCE_NAME);
             });
-        });
+        }).catch(err => {
+        console.error("Lỗi khi tải tỉnh:", err);
+    });
 
+    // Khi chọn tỉnh → load huyện
     provinceSelect.addEventListener("change", () => {
         const provinceId = provinceSelect.value;
+        console.log("[DEBUG] Đã chọn tỉnh ID:", provinceId);
+
         districtSelect.innerHTML = "<option value=''>-- Chọn huyện --</option>";
         wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
 
@@ -185,70 +206,40 @@
             fetch(`${contextPath}/api/viettel-address?type=district&id=${provinceId}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log("[DEBUG] Huyện:", data);
+                    if (!Array.isArray(data)) throw new Error("Kết quả không phải mảng");
                     data.forEach(d => {
-                        districtSelect.innerHTML += `<option value="${d.DISTRICT_ID}">${d.DISTRICT_NAME}</option>`;
+                        const option = document.createElement("option");
+                        option.value = d.DISTRICT_ID;
+                        option.textContent = d.DISTRICT_NAME;
+                        districtSelect.appendChild(option);
                     });
+                })
+                .catch(err => {
+                    console.error("Lỗi khi tải huyện:", err);
                 });
         }
     });
 
+    // Khi chọn huyện → load xã
     districtSelect.addEventListener("change", () => {
         const districtId = districtSelect.value;
+        console.log("[DEBUG] Đã chọn huyện ID:", districtId);
         wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
 
         if (districtId) {
             fetch(`${contextPath}/api/viettel-address?type=ward&id=${districtId}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log("[DEBUG] Xã:", data);
                     data.forEach(w => {
-                        wardSelect.innerHTML += `<option value="${w.WARD_ID}">${w.WARD_NAME}</option>`;
+                        appendOption(wardSelect, w.WARD_ID, w.WARD_NAME);
                     });
-                });
+                }).catch(err => {
+                console.error("Lỗi khi tải xã:", err);
+            });
         }
     });
-
-    document.querySelector("form").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-            method: "POST",
-            body: new URLSearchParams(formData),
-        }).then(res => {
-            if (!res.ok) {
-                return res.json().then(data => {
-                    throw new Error(data.message || "Lỗi không xác định");
-                });
-            }
-            return res.json();
-        }).then(data => {
-            Swal.fire({
-                icon: "success",
-                title: "Đặt hàng thành công!",
-                text: data.message || "Cảm ơn bạn đã mua hàng!",
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => window.location.href = `${contextPath}/order-success`);
-        }).catch(err => {
-            Swal.fire("Lỗi", err.message, "error");
-        });
-    });
-
-    function validateForm() {
-        const name = document.getElementById("fullName").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        if (!name || /\d/.test(name)) {
-            Swal.fire("Cảnh báo", "Tên không hợp lệ.", "warning");
-            return false;
-        }
-        if (!/^0\d{9}$/.test(phone)) {
-            Swal.fire("Cảnh báo", "Số điện thoại không hợp lệ.", "warning");
-            return false;
-        }
-        return true;
-    }
-
 </script>
 </body>
 </html>
