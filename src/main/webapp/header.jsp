@@ -31,12 +31,13 @@
                     <div class="action-buttons d-lg-none">
                         <div class="account-button-container">
                             <div class="d-flex align-items-center">
+                                <c:set var="itemCount" value="${sessionScope.cart != null ? sessionScope.cart.size() : 0}" />
                                 <a href="${pageContext.request.contextPath}/cart"
                                    class="btn btn-light position-relative me-2">
                                     <i class="bi bi-cart3"></i>
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cartCount"
-                                          style="display: ${sessionScope.cart.itemCount > 0 ? 'block' : 'none'}">
-                                        ${sessionScope.cart.itemCount}
+                                          style="display: ${itemCount > 0 ? 'block' : 'none'}">
+                                        ${itemCount}
                                     </span>
                                 </a>
                             </div>
@@ -77,11 +78,12 @@
                     </form>
                     <!-- Desktop action buttons -->
                     <div class="d-none d-lg-flex align-items-center">
+                        <c:set var="itemCount" value="${sessionScope.cart != null ? sessionScope.cart.size() : 0}" />
                         <a href="${pageContext.request.contextPath}/cart" class="btn btn-light me-3 position-relative">
                             <i class="bi bi-cart-fill"></i>
-                            <c:if test="${sessionScope.cart.itemCount > 0}">
+                            <c:if test="${itemCount > 0}">
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cartCount">
-                                        ${sessionScope.cart.itemCount}
+                                        ${itemCount}
                                 </span>
                             </c:if>
                         </a>

@@ -275,48 +275,25 @@
 
     // Mua ngay
     function buyNow(productId, quantity) {
-        const priceInput = document.querySelector('[name="price"]');
-        const price = priceInput ? priceInput.value : 0;
+        const price = document.querySelector('[name="price"]').value;
+        const contextPath = '${pageContext.request.contextPath}';
 
-        fetch('${pageContext.request.contextPath}/cart', {
+        fetch(contextPath + '/cart', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
-                action: 'addCart',
+                action: 'buyNow',
                 productId: productId,
                 quantity: quantity,
                 price: price
             })
         })
-
             .then(response => {
                 if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Đã thêm vào giỏ hàng',
-                        showConfirmButton: false,
-                        timer: 1000
-                    }).then(() => {
-                        window.location.href = '${pageContext.request.contextPath}/checkout';
-                    });
+                    window.location.href = contextPath + '/checkout';
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Thêm thất bại',
-                        showConfirmButton: true,
-                    });
+                    alert('Lỗi khi mua ngay!');
                 }
-            })
-
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi hệ thống',
-                    text: 'Không thể thêm sản phẩm vào giỏ hàng',
-                    showConfirmButton: true,
-                });
             });
     }
 

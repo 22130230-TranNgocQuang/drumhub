@@ -1,7 +1,7 @@
 package com.example.drumhub.controller;
 
 import com.example.drumhub.dao.models.Product;
-import com.example.drumhub.services.ProductDashboardService;
+import com.example.drumhub.services.ProductsDashboardService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -12,7 +12,7 @@ import java.util.List;
 @WebServlet(name = "ProductDashboardController", value = "/dashboard/products/*")
 public class ProductDashboardController extends HttpServlet {
 
-    private ProductDashboardService service = new ProductDashboardService();
+    private ProductsDashboardService service = new ProductsDashboardService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

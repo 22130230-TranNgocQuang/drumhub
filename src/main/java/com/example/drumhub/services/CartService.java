@@ -16,17 +16,11 @@ public class CartService {
     }
 
     public boolean addCart(int userId, int productId, int quantity, double price) {
-        boolean result = false;
-        System.out.println("===> Gọi addCart: userId=" + userId + ", productId=" + productId);
-        try{
-            ProductService service = new ProductService();
-            Product product = service.getDetailById(productId);
-            if (product == null) {
-                System.err.println("Không tìm thấy sản phẩm với ID: " + productId);
-                return false;
-            }
+        try {
+            Product product = new Product();
+            product.setId(productId); // đủ dùng vì CartDAO sẽ lấy đầy đủ sau
             int orderId = 0;
-            Cart cart = new Cart(productId, product, userId, quantity, price, orderId);
+            Cart cart = new Cart(0, product, userId, quantity, price, orderId);
             return cartDAO.addCart(cart);
         } catch(Exception e){
             e.printStackTrace();
