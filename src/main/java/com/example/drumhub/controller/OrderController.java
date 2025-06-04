@@ -75,12 +75,13 @@ public class OrderController extends HttpServlet {
             // ✅ Gửi selectedCarts sang order.jsp để nhập thông tin thanh toán
             request.setAttribute("cartItems", selectedCarts);
             request.getRequestDispatcher("/order.jsp").forward(request, response);
+            return;
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Đã xảy ra lỗi khi xử lý đơn hàng.");
             request.getRequestDispatcher("/cart.jsp").forward(request, response);
+            return;
         }
     }
-
 }

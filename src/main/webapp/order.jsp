@@ -182,63 +182,78 @@
         selectEl.appendChild(option);
     }
 
-    // Load danh sách tỉnh
+    // === 1. Load danh sách tỉnh ===
     fetch(`${contextPath}/api/viettel-address?type=province`)
         .then(res => res.json())
         .then(data => {
             console.log("[DEBUG] Provinces:", data);
+            if (!Array.isArray(data)) throw new Error("Kết quả không phải mảng");
+            provinceSelect.innerHTML = "<option value=''>-- Chọn tỉnh --</option>";
             data.forEach(p => {
                 appendOption(provinceSelect, p.PROVINCE_ID, p.PROVINCE_NAME);
             });
-        }).catch(err => {
-        console.error("Lỗi khi tải tỉnh:", err);
-    });
+        })
+        .catch(err => {
+            console.error("❌ Lỗi khi tải tỉnh:", err);
+        });
 
-    // Khi chọn tỉnh → load huyện
+    // === 2. Khi chọn tỉnh → load huyện ===
     provinceSelect.addEventListener("change", () => {
-        const provinceId = provinceSelect.value;
-        console.log("[DEBUG] Đã chọn tỉnh ID:", provinceId);
+        const provinceId = provinceSelect.value.trim();
+        console.log("[DEBUG] Province ID selected:", provinceId);
 
         districtSelect.innerHTML = "<option value=''>-- Chọn huyện --</option>";
         wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
 
-        if (provinceId) {
-            fetch(`${contextPath}/api/viettel-address?type=district&id=${provinceId}`)
-                .then(res => res.json())
-                .then(data => {
-                    console.log("[DEBUG] Huyện:", data);
-                    if (!Array.isArray(data)) throw new Error("Kết quả không phải mảng");
-                    data.forEach(d => {
-                        const option = document.createElement("option");
-                        option.value = d.DISTRICT_ID;
-                        option.textContent = d.DISTRICT_NAME;
-                        districtSelect.appendChild(option);
-                    });
-                })
-                .catch(err => {
-                    console.error("Lỗi khi tải huyện:", err);
-                });
+        if (!provinceId) {
+            console.warn("⚠️ Chưa chọn tỉnh hợp lệ.");
+            return;
         }
+
+        fetch(`${contextPath}/api/viettel-address?type=district&id=${encodeURIComponent(provinceId)}`)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                console.log("[DEBUG] Districts:", data);
+                if (!Array.isArray(data)) throw new Error("Kết quả huyện không phải mảng");
+                data.forEach(d => {
+                    appendOption(districtSelect, d.DISTRICT_ID, d.DISTRICT_NAME);
+                });
+            })
+            .catch(error => {
+                console.error("❌ Lỗi khi tải huyện:", error);
+            });
     });
 
-    // Khi chọn huyện → load xã
+    // === 3. Khi chọn huyện → load xã ===
     districtSelect.addEventListener("change", () => {
-        const districtId = districtSelect.value;
-        console.log("[DEBUG] Đã chọn huyện ID:", districtId);
+        const districtId = districtSelect.value.trim();
+        console.log("[DEBUG] District ID selected:", districtId);
+
         wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
 
-        if (districtId) {
-            fetch(`${contextPath}/api/viettel-address?type=ward&id=${districtId}`)
-                .then(res => res.json())
-                .then(data => {
-                    console.log("[DEBUG] Xã:", data);
-                    data.forEach(w => {
-                        appendOption(wardSelect, w.WARD_ID, w.WARD_NAME);
-                    });
-                }).catch(err => {
-                console.error("Lỗi khi tải xã:", err);
-            });
+        if (!districtId) {
+            console.warn("⚠️ Bạn cần chọn huyện hợp lệ để tải xã.");
+            return;
         }
+
+        fetch(`${contextPath}/api/viettel-address?type=ward&id=${encodeURIComponent(districtId)}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log("[DEBUG] Wards:", data);
+                if (!Array.isArray(data)) throw new Error("Kết quả xã không phải mảng");
+                data.forEach(w => {
+                    appendOption(wardSelect, w.WARD_ID, w.WARD_NAME);
+                });
+            })
+            .catch(err => {
+                console.error("❌ Lỗi khi tải xã:", err);
+            });
     });
 </script>
 </body>
