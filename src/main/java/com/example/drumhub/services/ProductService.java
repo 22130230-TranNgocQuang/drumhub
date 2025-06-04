@@ -14,7 +14,7 @@ public class ProductService {
     static ProductDAO dao = new ProductDAO();
 
     public List<Product> getAll() {return dao.getAll();}
-
+    public List<Product> getListByN() {return dao.getListByN(12);}
     public Product getDetail(String in){
         try {
             int id = Integer.parseInt(in);
