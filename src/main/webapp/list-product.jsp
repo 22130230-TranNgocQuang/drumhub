@@ -81,11 +81,10 @@
     <div class="row">
         <div class="col-md-3">
             <!-- Filter Sidebar -->
-            <div class="card mb-4">
-                <br>
-                <br>
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Bộ lọc tìm kiếm</h5>
+            <div class="card mb-4" >
+
+                <div class="card-header text-white" style="background-color: var(--drumhub-primary);" >
+                    <h5 class="mb-0" style="background-color: var(--drumhub-primary);">Bộ lọc tìm kiếm</h5>
                 </div>
                 <div class="card-body">
                     <form action="${pageContext.request.contextPath}/products" method="get">
