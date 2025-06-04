@@ -132,7 +132,7 @@
                                         <h5 class="card-title">${product.name}</h5>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <span class="price-text">
-                                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫"/>
+                                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                                                 </span>
                                             <span class="badge ${product.status ? 'bg-success' : 'bg-secondary'}">
                                                     ${product.status ? 'Còn hàng' : 'Hết hàng'}
@@ -147,7 +147,7 @@
                                                 <i class="bi bi-eye"></i> Xem chi tiết
                                             </a>
                                             <button class="btn btn-sm btn-outline-success"
-                                                    onclick="addToCart(${product.id})">
+                                                    onclick="addToCart(${product.id}, ${product.price})">
                                                 <i class="bi bi-cart-plus"></i> Thêm giỏ
                                             </button>
                                         </div>
@@ -202,41 +202,45 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function addToCart(productId) {
-        fetch('${pageContext.request.contextPath}/api/cart/add', {
+    const contextPath = '${pageContext.request.contextPath}';
+
+    function addToCart(productId, price) {
+        const formData = new URLSearchParams();
+        formData.append("action", "addCart");
+        formData.append("productId", productId);
+        formData.append("quantity", 1);
+        formData.append("price", price);
+
+        fetch(`${contextPath}/cart`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify({
-                productId: productId,
-                quantity: 1
-            })
+            body: formData.toString()
         })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Đã thêm vào giỏ hàng',
-                        showConfirmButton: false,
-                        timer: 1200
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: data.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng',
-                    });
-                }
+            .then(response => {
+                console.log("HTTP status:", response.status);
+                if (response.ok) return response.text();
+                return response.text().then(text => { throw new Error(text); });
+            })
+            .then(responseText => {
+                console.log("Server response:", responseText);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thêm vào giỏ hàng thành công!',
+                    text: responseText || 'Sản phẩm đã được thêm vào giỏ.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error("Add to cart failed:", error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Lỗi hệ thống',
-                    text: 'Có lỗi xảy ra',
+                    title: 'Không thể thêm vào giỏ hàng',
+                    text: error.message || 'Đã xảy ra lỗi không xác định.',
                 });
             });
     }

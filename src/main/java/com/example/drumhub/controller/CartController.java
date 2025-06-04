@@ -16,8 +16,37 @@ import java.util.List;
 
 @WebServlet(name = "CartController", value = "/cart")
 public class CartController extends HttpServlet {
+    private Connection conn;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        conn = (Connection) getServletContext().getAttribute("DBConnection");
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (user == null) {
+            // Nếu chưa đăng nhập, chuyển hướng về trang login
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        int userId = user.getId();
+        Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+        try {
+            CartService cartService = new CartService(conn);
+            List<Cart> cartItems = cartService.getCartByUserWithoutOrder(userId);
+            request.setAttribute("cartItems", cartItems);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("cart.jsp");
+            dispatcher.forward(request, response);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Không thể tải giỏ hàng.");
+        }
     }
 
     @Override
@@ -50,10 +79,106 @@ public class CartController extends HttpServlet {
                     throw new RuntimeException(e);
                 }
                 break;
+            case "remove":
+                try {
+                    removeCartItem(request, response);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "updateQuantity":
+                try {
+                    updateCartQuantity(request, response);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                break;
             default:
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
+
+    private void updateCartQuantity(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().println("Bạn cần đăng nhập.");
+            return;
+        }
+
+        String cartIdRaw = request.getParameter("cartId");
+        String quantityRaw = request.getParameter("quantity");
+
+        if (cartIdRaw == null || quantityRaw == null || cartIdRaw.isEmpty() || quantityRaw.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Thiếu thông tin.");
+            return;
+        }
+
+        int cartId = Integer.parseInt(cartIdRaw);
+        int quantity = Integer.parseInt(quantityRaw);
+        int userId = user.getId();
+
+        Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+        CartService cartService = new CartService(conn);
+
+        boolean success = cartService.updateQuantity(cartId, userId, quantity);
+        if (success) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().println("Cập nhật thành công.");
+        } else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Không thể cập nhật.");
+        }
+    }
+
+
+    private void removeCartItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            // 1. Kiểm tra đăng nhập
+            HttpSession session = request.getSession(false);
+            if (session == null || session.getAttribute("user") == null) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Bạn cần đăng nhập");
+                return;
+            }
+            User user = (User) session.getAttribute("user");
+
+            // 2. Lấy và validate cartId
+            String cartIdStr = request.getParameter("cartId");
+            if (cartIdStr == null || cartIdStr.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu tham số cartId");
+                return;
+            }
+
+            int cartId;
+            try {
+                cartId = Integer.parseInt(cartIdStr);
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "cartId không hợp lệ");
+                return;
+            }
+
+            // 3. Thực hiện xóa
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+            CartService cartService = new CartService(conn);
+            boolean success = cartService.removeCartItem(cartId, user.getId());
+
+            // 4. Trả kết quả
+            if (success) {
+                response.setContentType("text/plain");
+                response.getWriter().write("Xóa thành công");
+            } else {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Xóa thất bại");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi server: " + e.getMessage());
+        }
+    }
+
+
 
     private void buyNow(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         HttpSession session = request.getSession(false);

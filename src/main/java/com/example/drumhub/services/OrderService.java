@@ -3,10 +3,7 @@ package com.example.drumhub.services;
 import com.example.drumhub.dao.models.Order;
 import com.mysql.cj.x.protobuf.MysqlxCrud;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +15,26 @@ public class OrderService {
     }
 
     // CREATE
-    public boolean createOrder(Order order) throws SQLException {
-        String sql = "INSERT INTO orders (userId, totalPrice, status) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public int createOrder(Order order) throws SQLException {
+        String sql = "INSERT INTO orders (userId, orderDate, totalPrice, status) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, order.getUserId());
-            stmt.setDouble(2, order.getTotalPrice());
-            stmt.setString(3, order.getStatus());
-            return stmt.executeUpdate() > 0;
+            stmt.setTimestamp(2, order.getOrderDate()); // cần set thêm orderDate
+            stmt.setDouble(3, order.getTotalPrice());
+            stmt.setString(4, order.getStatus());
+
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Tạo đơn hàng thất bại, không có dòng nào được thêm.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Trả về orderId
+                } else {
+                    throw new SQLException("Không lấy được ID của đơn hàng mới.");
+                }
+            }
         }
     }
 

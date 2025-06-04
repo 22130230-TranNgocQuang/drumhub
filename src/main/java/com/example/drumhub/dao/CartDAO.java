@@ -1,11 +1,13 @@
 package com.example.drumhub.dao;
 
+import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.Cart;
 import com.example.drumhub.dao.models.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CartDAO {
     private Connection conn;
@@ -108,5 +110,71 @@ public class CartDAO {
         }
         return carts;
     }
+
+    public boolean updateQuantity(int cartId, int userId, int quantity) {
+        String sql = "UPDATE carts SET quantity = ? WHERE id = ? AND userId = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, cartId);
+            stmt.setInt(3, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<Cart> getSelectedCartsByIds(int userId, List<Integer> ids) throws SQLException {
+        List<Cart> carts = new ArrayList<>();
+        String placeholders = ids.stream().map(id -> "?").collect(Collectors.joining(","));
+        String sql = "SELECT c.*, p.name AS product_name, p.image AS product_image " +
+                "FROM carts c " +
+                "JOIN products p ON c.productId = p.id " +
+                "WHERE c.userId = ? AND c.id IN (" + placeholders + ")";
+
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            for (int i = 0; i < ids.size(); i++) {
+                ps.setInt(i + 2, ids.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Cart cart = new Cart();
+                cart.setId(rs.getInt("id"));
+                cart.setUserId(rs.getInt("userId"));
+                cart.setQuantity(rs.getInt("quantity"));
+                cart.setPrice(rs.getDouble("price"));
+                cart.setOrderId(rs.getInt("orderId"));
+
+                // Gán product
+                Product product = new Product();
+                product.setName(rs.getString("product_name"));
+                product.setImage(rs.getString("product_image"));
+                cart.setProduct(product);
+
+                carts.add(cart);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        return carts;
+    }
+
+
+    public boolean updateOrderId(int cartId, int orderId) {
+        String sql = "UPDATE carts SET orderId = ? WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, cartId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 }
