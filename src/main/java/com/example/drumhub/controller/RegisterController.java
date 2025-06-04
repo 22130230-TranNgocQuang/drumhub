@@ -27,7 +27,7 @@ public class RegisterController extends HttpServlet {
         String email = request.getParameter("email");
         String fullName = request.getParameter("fullname");
         int role = 1;  // Mặc định là 1
-        int status = 0;  // Mặc định là 0 (chưa xác minh email)
+        int status = 1;
         Timestamp createdAt = new Timestamp(System.currentTimeMillis());  // Thêm thời gian tạo
 
         // Kiểm tra các lỗi nhập liệu

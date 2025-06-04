@@ -2,38 +2,48 @@ package com.example.drumhub.dao;
 
 import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class UserDAO {
 
     public User authenticateUser(String username, String password) {
-        Statement stmt = DBConnect.getStatement();
-        ResultSet rs;
-        try {
-            String sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
-            rs = stmt.executeQuery(sql);
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return extractUser(rs);
+                String hashedPassword = rs.getString("password");
+                if (BCrypt.checkpw(password, hashedPassword)) {
+                    return extractUser(rs);
+                }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         return null;
     }
 
     public boolean registerUser(User user) {
-        Statement stmt = DBConnect.getStatement();
-        try {
-            String sql = String.format("INSERT INTO users (username, password, email, fullName, role, status) " +
-                            "VALUES ('%s', '%s', '%s', '%s', '%s', %d)",  // Sử dụng %d thay vì %b để truyền giá trị int cho status
-                    user.getUsername(), user.getPassword(), user.getEmail(), user.getFullName(),
-                    user.getRole(), user.getStatus());  // status được truyền là int
-            return stmt.executeUpdate(sql) > 0;
-        } catch (SQLException e) {
+        String sql = "INSERT INTO users (username, password, email, fullName, role, status) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, hashedPassword);
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getFullName());
+            ps.setInt(5, user.getRole());
+            ps.setInt(6, user.getStatus());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -85,6 +95,7 @@ public class UserDAO {
         }
         return null;
     }
+
     public User findUserByEmail(String email) {
         Statement stmt = DBConnect.getStatement();
         ResultSet rs;
@@ -99,6 +110,7 @@ public class UserDAO {
         }
         return null;
     }
+
     public boolean registerGoogleUser(User user) {
         String sql = "INSERT INTO users (username, password, email, fullName, role, status) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -151,10 +163,11 @@ public class UserDAO {
                 rs.getString("email"),
                 rs.getString("fullName"),
                 rs.getInt("role"),
-                rs.getInt("status"),  // status được lấy là kiểu int từ cơ sở dữ liệu
+                rs.getInt("status"),
                 rs.getTimestamp("createdAt")
         );
     }
+
     public boolean updateUserStatusByEmail(String email) {
         String sql = "UPDATE users SET status = 1 WHERE email = ?";
         try (Connection conn = DBConnect.getConnection();
@@ -166,5 +179,4 @@ public class UserDAO {
             return false;
         }
     }
-
 }
