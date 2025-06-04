@@ -132,8 +132,7 @@ public class CartDAO {
                 "JOIN products p ON c.productId = p.id " +
                 "WHERE c.userId = ? AND c.id IN (" + placeholders + ")";
 
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) { // ✅ Sử dụng this.conn
             ps.setInt(1, userId);
             for (int i = 0; i < ids.size(); i++) {
                 ps.setInt(i + 2, ids.get(i));
@@ -148,7 +147,6 @@ public class CartDAO {
                 cart.setPrice(rs.getDouble("price"));
                 cart.setOrderId(rs.getInt("orderId"));
 
-                // Gán product
                 Product product = new Product();
                 product.setName(rs.getString("product_name"));
                 product.setImage(rs.getString("product_image"));
@@ -156,8 +154,6 @@ public class CartDAO {
 
                 carts.add(cart);
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
 
         return carts;
@@ -169,6 +165,73 @@ public class CartDAO {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderId);
             stmt.setInt(2, cartId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<Cart> getUnorderedCartsByUserId(int userId) {
+        List<Cart> carts = new ArrayList<>();
+        String sql = "SELECT c.*, p.name AS productName, p.image AS productImage, p.price AS productPrice " +
+                "FROM carts c " +
+                "JOIN products p ON c.productId = p.id " +
+                "WHERE c.userId = ? AND c.orderId IS NULL";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Cart cart = new Cart();
+                Product product = new Product();
+
+                product.setId(rs.getInt("productId"));
+                product.setName(rs.getString("productName"));
+                product.setImage(rs.getString("productImage"));
+
+                cart.setId(rs.getInt("id"));
+                cart.setProduct(product);
+                cart.setUserId(rs.getInt("userId"));
+                cart.setQuantity(rs.getInt("quantity"));
+                cart.setPrice(rs.getDouble("productPrice"));
+                cart.setOrderId(rs.getInt("orderId"));
+
+                carts.add(cart);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return carts;
+    }
+
+    public boolean assignOrderIdToUserCarts(int userId, int orderId) {
+        String sql = "UPDATE carts SET orderId = ? WHERE userId = ? AND orderId IS NULL";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean assignOrderIdToSelectedCarts(int userId, List<Integer> cartIds, int orderId) {
+        if (cartIds == null || cartIds.isEmpty()) return false;
+
+        String placeholders = cartIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        String sql = "UPDATE carts SET orderId = ? WHERE userId = ? AND id IN (" + placeholders + ")";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, userId);
+            for (int i = 0; i < cartIds.size(); i++) {
+                stmt.setInt(i + 3, cartIds.get(i)); // bắt đầu từ index 3
+            }
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

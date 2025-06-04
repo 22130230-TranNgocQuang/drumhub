@@ -1,7 +1,6 @@
 package com.example.drumhub.dao;
 
 import com.example.drumhub.dao.db.DBConnect;
-import com.example.drumhub.dao.models.Cart;
 import com.example.drumhub.dao.models.Order;
 import com.example.drumhub.dao.models.OrderDetailItem;
 import com.example.drumhub.dao.models.User;
@@ -20,13 +19,16 @@ public class OrdersDashboardDAO {
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                orders.add(new Order(
-                        rs.getInt("id"),
-                        rs.getInt("userId"),
-                        rs.getTimestamp("orderDate"),
-                        rs.getDouble("totalPrice"),
-                        rs.getString("status")
-                ));
+                Order order = new Order();
+                order.setId(rs.getInt("id"));
+                order.setUserId(rs.getInt("userId"));
+                order.setFullName(rs.getString("fullName"));
+                order.setPhone(rs.getString("phone"));
+                order.setAddress(rs.getString("address"));
+                order.setOrderDate(rs.getTimestamp("orderDate"));
+                order.setTotalPrice(rs.getDouble("totalPrice"));
+                order.setStatus(rs.getString("status"));
+                orders.add(order);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi khi truy vấn đơn hàng", e);
@@ -45,20 +47,22 @@ public class OrdersDashboardDAO {
         return 0;
     }
 
-    // Thêm method lấy 1 order theo id (phục vụ edit)
     public Order getById(int id) {
         String sql = "SELECT * FROM orders WHERE id = ?";
         try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Order(
-                        rs.getInt("id"),
-                        rs.getInt("userId"),
-                        rs.getTimestamp("orderDate"),
-                        rs.getDouble("totalPrice"),
-                        rs.getString("status")
-                );
+                Order order = new Order();
+                order.setId(rs.getInt("id"));
+                order.setUserId(rs.getInt("userId"));
+                order.setFullName(rs.getString("fullName"));
+                order.setPhone(rs.getString("phone"));
+                order.setAddress(rs.getString("address"));
+                order.setOrderDate(rs.getTimestamp("orderDate"));
+                order.setTotalPrice(rs.getDouble("totalPrice"));
+                order.setStatus(rs.getString("status"));
+                return order;
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Lỗi khi lấy đơn hàng theo id", e);
@@ -66,21 +70,17 @@ public class OrdersDashboardDAO {
         return null;
     }
 
-    // Thêm method cập nhật trạng thái đơn hàng
     public boolean updateStatus(int id, String status) {
         String sql = "UPDATE orders SET status = ? WHERE id = ?";
         try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
             pst.setString(1, status);
             pst.setInt(2, id);
             return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Lỗi khi cập nhật trạng thái đơn hàng", e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    // Thêm method xóa đơn hàng
     public boolean delete(int id) {
         String sql = "DELETE FROM orders WHERE id = ?";
         try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
@@ -90,26 +90,27 @@ public class OrdersDashboardDAO {
             throw new RuntimeException("Lỗi khi xóa đơn hàng", e);
         }
     }
+
     public List<OrderDetailItem> getOrderDetailsByOrderId(int orderId) {
         List<OrderDetailItem> items = new ArrayList<>();
 
         String sql = """
-        SELECT c.id AS cartId,
-               p.id AS productId,
-               p.name,
-               (
-                SELECT pi.image
-                FROM productImages pi
-                WHERE pi.productId = p.id
-                LIMIT 1
-                )AS image,
-               c.quantity,
-               c.price
-        FROM carts c
-        JOIN products p ON c.productId = p.id
-        LEFT JOIN productImages pi ON pi.productId = p.id
-        WHERE c.orderId = ?
-    """;
+            SELECT c.id AS cartId,
+                   p.id AS productId,
+                   p.name,
+                   (
+                    SELECT pi.image
+                    FROM productImages pi
+                    WHERE pi.productId = p.id
+                    LIMIT 1
+                   ) AS image,
+                   c.quantity,
+                   c.price
+            FROM carts c
+            JOIN products p ON c.productId = p.id
+            LEFT JOIN productImages pi ON pi.productId = p.id
+            WHERE c.orderId = ?
+        """;
 
         try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
             pst.setInt(1, orderId);
@@ -119,7 +120,7 @@ public class OrdersDashboardDAO {
                 item.setCartId(rs.getInt("cartId"));
                 item.setProductId(rs.getInt("productId"));
                 item.setProductName(rs.getString("name"));
-                item.setProductImage(rs.getString("image"));  // lấy ảnh từ productImages
+                item.setProductImage(rs.getString("image"));
                 item.setQuantity(rs.getInt("quantity"));
                 item.setPrice(rs.getDouble("price"));
                 items.add(item);
@@ -130,14 +131,14 @@ public class OrdersDashboardDAO {
         return items;
     }
 
-
     public User getUserByOrderId(int orderId) {
         String sql = """
-        SELECT u.*
-        FROM orders o
-        JOIN users u ON o.userId = u.id
-        WHERE o.id = ?
-    """;
+            SELECT u.*
+            FROM orders o
+            JOIN users u ON o.userId = u.id
+            WHERE o.id = ?
+        """;
+
         try (PreparedStatement pst = DBConnect.getConnection().prepareStatement(sql)) {
             pst.setInt(1, orderId);
             ResultSet rs = pst.executeQuery();
@@ -154,6 +155,7 @@ public class OrdersDashboardDAO {
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi lấy người đặt đơn hàng", e);
         }
+
         return null;
     }
 }

@@ -109,7 +109,11 @@
 
                 <div class="col-md-6">
                     <h4>Thông Tin Thanh Toán</h4>
-                    <form method="post" action="${pageContext.request.contextPath}/order">
+                    <form id="orderForm" method="post" action="${pageContext.request.contextPath}/order">
+                    <input type="hidden" name="action" value="confirmOrder" />
+                        <c:forEach var="item" items="${cartItems}">
+                            <input type="hidden" name="selectedCartIds" value="${item.id}" />
+                        </c:forEach>
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Họ và Tên</label>
                             <input type="text" id="fullName" name="fullName" class="form-control" required>
@@ -166,8 +170,9 @@
 </main>
 
 <jsp:include page="footer.jsp"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- JavaScript gọi API ViettelPost qua servlet trung gian -->
+<!-- JavaScript gọi API qua servlet trung gian -->
 <script>
     const contextPath = "${pageContext.request.contextPath}";
     const provinceSelect = document.getElementById("province");
@@ -194,7 +199,7 @@
             });
         })
         .catch(err => {
-            console.error("❌ Lỗi khi tải tỉnh:", err);
+            console.error("Lỗi khi tải tỉnh:", err);
         });
 
     // === 2. Khi chọn tỉnh → load huyện ===
@@ -206,7 +211,7 @@
         console.log("%c[DEBUG] provinceSelect.value =", "color: orange", rawValue);
 
         if (rawValue.startsWith(":")) {
-            console.error("🔥 VALUE SAI: Bị gán ':' vào value → Có JS khác phá!");
+            console.error("VALUE SAI: Bị gán ':' vào value → Có JS khác phá!");
             console.trace();
         }
 
@@ -214,7 +219,7 @@
         console.log("%c[DEBUG] provinceCode sau khi làm sạch =", "color: limegreen", provinceCode);
 
         if (!provinceCode || isNaN(provinceCode)) {
-            console.error("⛔ provinceCode không hợp lệ → huỷ fetch!");
+            console.error("provinceCode không hợp lệ → huỷ fetch!");
             return;
         }
 
@@ -232,7 +237,7 @@
             .then(data => {
                 console.log("[DEBUG] Dữ liệu huyện:", data);
                 if (!Array.isArray(data.districts)) {
-                    console.error("❌ Không có danh sách huyện:", data);
+                    console.error("Không có danh sách huyện:", data);
                     return;
                 }
                 data.districts.forEach(district => {
@@ -240,7 +245,7 @@
                 });
             })
             .catch(err => {
-                console.error("❌ Lỗi khi tải huyện:", err);
+                console.error("Lỗi khi tải huyện:", err);
             });
     });
 
@@ -251,7 +256,7 @@
         console.log("%c[DEBUG] districtCode =", "color: limegreen", districtCode);
 
         if (!districtCode || isNaN(districtCode)) {
-            console.warn("⚠️ Mã huyện không hợp lệ.");
+            console.warn("⚠Mã huyện không hợp lệ.");
             return;
         }
 
@@ -268,7 +273,7 @@
             .then(data => {
                 console.log("[DEBUG] Dữ liệu xã:", data);
                 if (!Array.isArray(data.wards)) {
-                    console.error("❌ Không có danh sách xã:", data);
+                    console.error("Không có danh sách xã:", data);
                     return;
                 }
                 data.wards.forEach(ward => {
@@ -276,9 +281,43 @@
                 });
             })
             .catch(err => {
-                console.error("❌ Lỗi khi tải xã:", err);
+                console.error("Lỗi khi tải xã:", err);
             });
     });
+
+
+    document.getElementById("orderForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // Ngăn form gửi mặc định
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            params.append(key, value);
+        }
+
+        const actionURL = form.getAttribute("action") || form.action;
+
+        fetch(actionURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: params.toString()
+        }).then(res => res.json())
+            .then(data => {
+                if (data.status === "success" && data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    Swal.fire("Lỗi", data.message || "Không thể xử lý đơn hàng", "error");
+                }
+            }).catch(err => {
+            console.error(err);
+            Swal.fire("Lỗi", "Đã xảy ra lỗi kết nối", "error");
+        });
+    });
 </script>
+
 </body>
 </html>
