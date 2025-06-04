@@ -80,4 +80,35 @@ public class ProductDAO {
 
         return result;
     }
+    public List<Product> getListByN(int n) {
+        Statement statement = DBConnect.getStatement();
+        ResultSet rs = null;
+        try {
+            String sql = "SELECT * FROM products LIMIT " + n;
+            rs = statement.executeQuery(sql);
+            List<Product> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(new Product(
+                        rs.getInt(1),      // id
+                        rs.getString(2),   // name
+                        rs.getString(3),   // description
+                        rs.getDouble(4),   // price
+                        rs.getBoolean(5),  // status
+                        rs.getInt(6)       // categoryId
+                ));
+            }
+            System.out.println("Top " + n + " products: " + result.size());
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.toString());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
