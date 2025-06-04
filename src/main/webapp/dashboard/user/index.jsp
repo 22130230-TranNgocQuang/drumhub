@@ -24,10 +24,10 @@
                     <a class="nav-link text-white" href="#">Quản lý người dùng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/order/index.jsp">Quản lý đơn hàng</a>
+                    <a class="nav-link text-white" href="/dashboard/order">Quản lý đơn hàng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/product/products.jsp">Quản lý sản phẩm</a>
+                    <a class="nav-link text-white" href="/dashboard/product">Quản lý sản phẩm</a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link text-white" href="/statistics">Thống kê</a>
