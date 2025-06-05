@@ -109,7 +109,11 @@
 
                 <div class="col-md-6">
                     <h4>Thông Tin Thanh Toán</h4>
-                    <form method="post" action="${pageContext.request.contextPath}/order">
+                    <form id="orderForm" method="post" action="${pageContext.request.contextPath}/order">
+                    <input type="hidden" name="action" value="confirmOrder" />
+                        <c:forEach var="item" items="${cartItems}">
+                            <input type="hidden" name="selectedCartIds" value="${item.id}" />
+                        </c:forEach>
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Họ và Tên</label>
                             <input type="text" id="fullName" name="fullName" class="form-control" required>
@@ -166,95 +170,154 @@
 </main>
 
 <jsp:include page="footer.jsp"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- JavaScript gọi API ViettelPost qua servlet trung gian -->
+<!-- JavaScript gọi API qua servlet trung gian -->
 <script>
     const contextPath = "${pageContext.request.contextPath}";
     const provinceSelect = document.getElementById("province");
     const districtSelect = document.getElementById("district");
     const wardSelect = document.getElementById("ward");
 
-    // Hàm tạo option
     function appendOption(selectEl, value, text) {
+        const cleanedValue = String(value).match(/\d+/)?.[0] || '';
         const option = document.createElement("option");
-        option.value = value;
+        option.value = cleanedValue;
         option.textContent = text;
         selectEl.appendChild(option);
     }
 
     // === 1. Load danh sách tỉnh ===
-    fetch(`${contextPath}/api/viettel-address?type=province`)
+    fetch(`${contextPath}/address-proxy?type=province`)
         .then(res => res.json())
         .then(data => {
-            console.log("[DEBUG] Provinces:", data);
-            if (!Array.isArray(data)) throw new Error("Kết quả không phải mảng");
+            console.log("[DEBUG] Dữ liệu tỉnh:", data);
             provinceSelect.innerHTML = "<option value=''>-- Chọn tỉnh --</option>";
-            data.forEach(p => {
-                appendOption(provinceSelect, p.PROVINCE_ID, p.PROVINCE_NAME);
+            data.forEach(province => {
+                console.log("[DEBUG] province.code =", province.code);
+                appendOption(provinceSelect, province.code, province.name);
             });
         })
         .catch(err => {
-            console.error("❌ Lỗi khi tải tỉnh:", err);
+            console.error("Lỗi khi tải tỉnh:", err);
         });
 
     // === 2. Khi chọn tỉnh → load huyện ===
     provinceSelect.addEventListener("change", () => {
-        const provinceId = provinceSelect.value.trim();
-        console.log("[DEBUG] Province ID selected:", provinceId);
+        const selectedIndex = provinceSelect.selectedIndex;
+        const rawValue = provinceSelect.value;
+
+        console.log("%c[DEBUG] Chọn tỉnh: selectedIndex =", "color: orange", selectedIndex);
+        console.log("%c[DEBUG] provinceSelect.value =", "color: orange", rawValue);
+
+        if (rawValue.startsWith(":")) {
+            console.error("VALUE SAI: Bị gán ':' vào value → Có JS khác phá!");
+            console.trace();
+        }
+
+        const provinceCode = rawValue.replace(/[^\d]/g, '');
+        console.log("%c[DEBUG] provinceCode sau khi làm sạch =", "color: limegreen", provinceCode);
+
+        if (!provinceCode || isNaN(provinceCode)) {
+            console.error("provinceCode không hợp lệ → huỷ fetch!");
+            return;
+        }
 
         districtSelect.innerHTML = "<option value=''>-- Chọn huyện --</option>";
         wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
 
-        if (!provinceId) {
-            console.warn("⚠️ Chưa chọn tỉnh hợp lệ.");
-            return;
-        }
+        // ✅ Dùng URL object để build chuẩn không bị lỗi
+        const url = new URL(`${contextPath}/address-proxy`, window.location.origin);
+        url.searchParams.set("type", "district");
+        url.searchParams.set("id", provinceCode);
+        console.log("%c[DEBUG] URL fetch huyện:", "color: cyan", url.toString());
 
-        fetch(`${contextPath}/api/viettel-address?type=district&id=${encodeURIComponent(provinceId)}`)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
+        fetch(url)
+            .then(res => res.json())
             .then(data => {
-                console.log("[DEBUG] Districts:", data);
-                if (!Array.isArray(data)) throw new Error("Kết quả huyện không phải mảng");
-                data.forEach(d => {
-                    appendOption(districtSelect, d.DISTRICT_ID, d.DISTRICT_NAME);
+                console.log("[DEBUG] Dữ liệu huyện:", data);
+                if (!Array.isArray(data.districts)) {
+                    console.error("Không có danh sách huyện:", data);
+                    return;
+                }
+                data.districts.forEach(district => {
+                    appendOption(districtSelect, district.code, district.name);
                 });
             })
-            .catch(error => {
-                console.error("❌ Lỗi khi tải huyện:", error);
+            .catch(err => {
+                console.error("Lỗi khi tải huyện:", err);
             });
     });
 
     // === 3. Khi chọn huyện → load xã ===
     districtSelect.addEventListener("change", () => {
-        const districtId = districtSelect.value.trim();
-        console.log("[DEBUG] District ID selected:", districtId);
+        const rawDistrict = districtSelect.value;
+        const districtCode = rawDistrict.replace(/[^\d]/g, '');
+        console.log("%c[DEBUG] districtCode =", "color: limegreen", districtCode);
 
-        wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
-
-        if (!districtId) {
-            console.warn("⚠️ Bạn cần chọn huyện hợp lệ để tải xã.");
+        if (!districtCode || isNaN(districtCode)) {
+            console.warn("⚠Mã huyện không hợp lệ.");
             return;
         }
 
-        fetch(`${contextPath}/api/viettel-address?type=ward&id=${encodeURIComponent(districtId)}`)
-            .then(res => {
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                return res.json();
-            })
+        wardSelect.innerHTML = "<option value=''>-- Chọn xã --</option>";
+
+        // ✅ Dùng URL object để build URL tránh lỗi
+        const url = new URL(`${contextPath}/address-proxy`, window.location.origin);
+        url.searchParams.set("type", "ward");
+        url.searchParams.set("id", districtCode);
+        console.log("%c[DEBUG] URL fetch xã:", "color: cyan", url.toString());
+
+        fetch(url)
+            .then(res => res.json())
             .then(data => {
-                console.log("[DEBUG] Wards:", data);
-                if (!Array.isArray(data)) throw new Error("Kết quả xã không phải mảng");
-                data.forEach(w => {
-                    appendOption(wardSelect, w.WARD_ID, w.WARD_NAME);
+                console.log("[DEBUG] Dữ liệu xã:", data);
+                if (!Array.isArray(data.wards)) {
+                    console.error("Không có danh sách xã:", data);
+                    return;
+                }
+                data.wards.forEach(ward => {
+                    appendOption(wardSelect, ward.code, ward.name);
                 });
             })
             .catch(err => {
-                console.error("❌ Lỗi khi tải xã:", err);
+                console.error("Lỗi khi tải xã:", err);
             });
     });
+
+
+    document.getElementById("orderForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // Ngăn form gửi mặc định
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            params.append(key, value);
+        }
+
+        const actionURL = form.getAttribute("action") || form.action;
+
+        fetch(actionURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: params.toString()
+        }).then(res => res.json())
+            .then(data => {
+                if (data.status === "success" && data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    Swal.fire("Lỗi", data.message || "Không thể xử lý đơn hàng", "error");
+                }
+            }).catch(err => {
+            console.error(err);
+            Swal.fire("Lỗi", "Đã xảy ra lỗi kết nối", "error");
+        });
+    });
 </script>
+
 </body>
 </html>

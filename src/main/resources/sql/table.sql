@@ -37,12 +37,15 @@ CREATE TABLE users (
 );
 
 CREATE TABLE orders (
-                        id         INT AUTO_INCREMENT PRIMARY KEY,
-                        userId     INT            NOT NULL,
-                        orderDate  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
-                        totalPrice DECIMAL(10, 2) NOT NULL CHECK (totalPrice >= 0),
-                        status     VARCHAR(50) DEFAULT 'pending',
-                        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    userId     INT            NOT NULL,
+    fullName   VARCHAR(255)   NOT NULL,
+    phone      VARCHAR(20)    NOT NULL,
+    address    TEXT           NOT NULL,
+    orderDate  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    totalPrice DECIMAL(10, 2) NOT NULL CHECK (totalPrice >= 0),
+    status     VARCHAR(50) DEFAULT 'pending',
+    FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE carts (

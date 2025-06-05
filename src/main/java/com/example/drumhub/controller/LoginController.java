@@ -49,13 +49,13 @@ public class LoginController extends HttpServlet {
         User user = userDAO.authenticateUser(username, password);
 
         if (user != null) {
-            if (user.getStatus() == 1) { // email đã xác minh
-                resetLoginAttempts(session);
-                session.setAttribute("user", user);
-
-                // Thêm log đăng nhập thành công
-                logService.logInfo("/login", "User", username, null, "Đăng nhập thành công");
-
+            // Kiểm tra nếu email đã được xác minh (status = 1 có nghĩa là đã xác minh)
+            if (user.getStatus() == 1) {  // email đã xác minh
+                // Lưu thông tin người dùng vào session
+                HttpSession session = request.getSession();
+                session.setAttribute("user", user); // Lưu người dùng vào session
+                session.setAttribute("role", user.getRole());
+                // Chuyển hướng tới trang home
                 response.sendRedirect("/list-product");
             } else {
                 request.setAttribute("errorMessage", "Bạn cần xác minh email trước khi đăng nhập.");

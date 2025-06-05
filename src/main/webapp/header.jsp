@@ -27,6 +27,7 @@
                         <a class="nav-link" href="${pageContext.request.contextPath}/list-product">SẢN PHẨM</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/posts">TIN TỨC</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/contact">LIÊN HỆ</a>
+
                     </div>
                     <div class="action-buttons d-lg-none">
                         <div class="account-button-container">
@@ -57,6 +58,11 @@
                                     <c:otherwise>
                                         <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/my-account">Tài khoản của tôi</a></li>
                                         <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/orders">Đơn hàng</a></li>
+
+                                        <c:if test="${sessionScope.user.role == 1}">
+                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/dashboard/">Dashboard Admin</a></li>
+                                        </c:if>
+
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form id="logoutFormUser" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
@@ -102,6 +108,11 @@
                                     <c:otherwise>
                                         <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/my-account">Tài khoản của tôi</a></li>
                                         <li><a class="dropdown-item" href="${pageContext.request.contextPath}/account/orders">Đơn hàng</a></li>
+
+                                        <c:if test="${sessionScope.user.role == 1}">
+                                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/dashboard">Dashboard Admin</a></li>
+                                        </c:if>
+
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form id="logoutForm" action="${pageContext.request.contextPath}/logout" method="POST" class="dropdown-item p-0">
@@ -127,6 +138,7 @@
             var confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất?");
             if (confirmLogout) {
                 document.getElementById('logoutForm').submit();
+                document.getElementById('logoutFormUser').submit();
                 return true;
             } else {
                 return false;
