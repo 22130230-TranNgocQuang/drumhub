@@ -1,6 +1,9 @@
 package com.example.drumhub.controller;
+
 import com.example.drumhub.dao.UserDAO;
 import com.example.drumhub.dao.models.User;
+import com.example.drumhub.services.LogService;
+import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,60 +16,57 @@ import java.sql.Timestamp;
 @WebServlet("/register")
 public class RegisterController extends HttpServlet {
     private UserDAO userDAO;
+    private LogService logService;
 
     @Override
     public void init() throws ServletException {
-        userDAO = new UserDAO();  // Khởi tạo DAO
+        userDAO = new UserDAO();
+        logService = new LogService(new com.example.drumhub.dao.LogDAO()); // LogDAO không truyền connection
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Lấy dữ liệu từ form đăng ký
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String email = request.getParameter("email");
         String fullName = request.getParameter("fullname");
-        int role = 1;  // Mặc định là 1
+        int role = 1;
         int status = 1;
-        Timestamp createdAt = new Timestamp(System.currentTimeMillis());  // Thêm thời gian tạo
+        Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
-        // Kiểm tra các lỗi nhập liệu
         boolean hasError = false;
         String errorMessage = "";
 
         if (username == null || username.trim().isEmpty()) {
             hasError = true;
             errorMessage = "Tên đăng nhập không được để trống.";
-        }
-        if (email == null || email.trim().isEmpty()) {
+        } else if (email == null || email.trim().isEmpty()) {
             hasError = true;
             errorMessage = "Email không được để trống.";
-        }
-        if (userDAO.checkEmailExists(email)) {
+        } else if (userDAO.checkEmailExists(email)) {
             hasError = true;
             errorMessage = "Email đã tồn tại.";
-        }
-        if (userDAO.checkUsernameExists(username)) {
+        } else if (userDAO.checkUsernameExists(username)) {
             hasError = true;
             errorMessage = "Tên đăng nhập đã tồn tại.";
         }
 
-        // Nếu có lỗi, quay lại trang đăng ký và hiển thị lỗi
         if (hasError) {
             request.setAttribute("errorMessage", errorMessage);
+            logService.logError("/register", "User", username, null, "Lỗi: " + errorMessage);
             request.getRequestDispatcher("/register.jsp").forward(request, response);
             return;
         }
 
-        // Tạo đối tượng User mới và gọi phương thức đăng ký
         User user = new User(0, username, password, email, fullName, role, status, createdAt);
 
         if (userDAO.registerUser(user)) {
-            // Đăng ký thành công, chuyển hướng đến trang đăng nhập
+            String newData = new Gson().toJson(user);
+            logService.logInfo("/register", "User", username, null, newData);
             response.sendRedirect("login");
         } else {
-            // Nếu không thành công, thông báo lỗi
             request.setAttribute("errorMessage", "Đăng ký không thành công. Vui lòng thử lại.");
+            logService.logError("/register", "User", username, null, "Lỗi DB khi insert");
             request.getRequestDispatcher("/register.jsp").forward(request, response);
         }
     }
