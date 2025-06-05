@@ -21,13 +21,13 @@
             <h4 class="text-white mb-4">Quản trị</h4>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/dashboard/users">Quản lý người dùng</a>
+                    <a class="nav-link text-white" href="/dashboard/user">Quản lý người dùng</a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link text-white active" href="#">Quản lý đơn hàng</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="/dashboard/products">Quản lý sản phẩm</a>
+                    <a class="nav-link text-white" href="/dashboard/product">Quản lý sản phẩm</a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link text-white" href="/dashboard/statistics">Thống kê</a>
