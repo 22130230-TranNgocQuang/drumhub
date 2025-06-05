@@ -10,20 +10,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class CartService {
-    private CartDAO cartDAO ;
-    private Connection conn;
 
-    public CartService(Connection conn) throws SQLException {
-        this.conn = conn;
-        this.cartDAO = new CartDAO(conn);
-    }
-
-    public boolean addCart(int userId, int productId, int quantity, double price) {
+    public boolean addCart(Connection conn, int userId, int productId, int quantity, double price) {
         try {
             Product product = new Product();
             product.setId(productId);
             int orderId = 0;
             Cart cart = new Cart(0, product, userId, quantity, price, orderId);
+            CartDAO cartDAO = new CartDAO(conn);
             return cartDAO.addCart(cart);
         } catch(Exception e){
             e.printStackTrace();
@@ -31,11 +25,17 @@ public class CartService {
         }
     }
 
-    public List<Cart> getCartByUserWithoutOrder(int userId) {
-        return cartDAO.getCartByUserWithoutOrder(userId);
+    public List<Cart> getCartByUserWithoutOrder(Connection conn, int userId) {
+        try {
+            CartDAO cartDAO = new CartDAO(conn);
+            return cartDAO.getCartByUserWithoutOrder(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public boolean removeCartItem(int cartId, int userId) throws SQLException {
+    public boolean removeCartItem(Connection conn, int cartId, int userId) throws SQLException {
         String sql = "DELETE FROM carts WHERE id = ?";
         System.out.println(">> TEST: bỏ qua userId - cartId = " + cartId);
 
@@ -47,9 +47,13 @@ public class CartService {
         }
     }
 
-    public boolean updateQuantity(int cartId, int userId, int quantity) {
-        return cartDAO.updateQuantity(cartId, userId, quantity);
+    public boolean updateQuantity(Connection conn, int cartId, int userId, int quantity) {
+        try {
+            CartDAO cartDAO = new CartDAO(conn);
+            return cartDAO.updateQuantity(cartId, userId, quantity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-
-
 }

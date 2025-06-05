@@ -15,11 +15,14 @@ public class OrderDAO {
 
     // Thêm đơn hàng mới, trả về orderId
     public int insertOrder(Order order) throws SQLException {
-        String sql = "INSERT INTO orders (userId, totalPrice, status) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO orders (userId, fullName, phone, address, totalPrice, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, order.getUserId());
-            stmt.setDouble(2, order.getTotalPrice());
-            stmt.setString(3, order.getStatus());
+            stmt.setString(2, order.getFullName());
+            stmt.setString(3, order.getPhone());
+            stmt.setString(4, order.getAddress());
+            stmt.setDouble(5, order.getTotalPrice());
+            stmt.setString(6, order.getStatus());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -28,7 +31,7 @@ public class OrderDAO {
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1); // Trả về orderId
+                    return generatedKeys.getInt(1);
                 } else {
                     throw new SQLException("Không lấy được ID đơn hàng.");
                 }
@@ -88,6 +91,9 @@ public class OrderDAO {
         Order order = new Order();
         order.setId(rs.getInt("id"));
         order.setUserId(rs.getInt("userId"));
+        order.setFullName(rs.getString("fullName"));
+        order.setPhone(rs.getString("phone"));
+        order.setAddress(rs.getString("address"));
         order.setOrderDate(rs.getTimestamp("orderDate"));
         order.setTotalPrice(rs.getDouble("totalPrice"));
         order.setStatus(rs.getString("status"));

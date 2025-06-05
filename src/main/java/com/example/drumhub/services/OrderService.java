@@ -1,14 +1,13 @@
 package com.example.drumhub.services;
 
 import com.example.drumhub.dao.models.Order;
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderService {
-    private Connection conn;
+    private final Connection conn;
 
     public OrderService(Connection conn) {
         this.conn = conn;
@@ -16,12 +15,14 @@ public class OrderService {
 
     // CREATE
     public int createOrder(Order order) throws SQLException {
-        String sql = "INSERT INTO orders (userId, orderDate, totalPrice, status) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO orders (userId, fullName, phone, address, totalPrice, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, order.getUserId());
-            stmt.setTimestamp(2, order.getOrderDate()); // cần set thêm orderDate
-            stmt.setDouble(3, order.getTotalPrice());
-            stmt.setString(4, order.getStatus());
+            stmt.setString(2, order.getFullName());
+            stmt.setString(3, order.getPhone());
+            stmt.setString(4, order.getAddress());
+            stmt.setDouble(5, order.getTotalPrice());
+            stmt.setString(6, order.getStatus());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -30,7 +31,7 @@ public class OrderService {
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1); // Trả về orderId
+                    return generatedKeys.getInt(1);
                 } else {
                     throw new SQLException("Không lấy được ID của đơn hàng mới.");
                 }
@@ -40,7 +41,6 @@ public class OrderService {
 
     // READ (one)
     public Order getOrderById(int id) throws SQLException {
-
         String sql = "SELECT * FROM orders WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -49,6 +49,9 @@ public class OrderService {
                 Order order = new Order();
                 order.setId(rs.getInt("id"));
                 order.setUserId(rs.getInt("userId"));
+                order.setFullName(rs.getString("fullName"));
+                order.setPhone(rs.getString("phone"));
+                order.setAddress(rs.getString("address"));
                 order.setOrderDate(rs.getTimestamp("orderDate"));
                 order.setTotalPrice(rs.getDouble("totalPrice"));
                 order.setStatus(rs.getString("status"));
@@ -68,6 +71,9 @@ public class OrderService {
                 Order order = new Order();
                 order.setId(rs.getInt("id"));
                 order.setUserId(rs.getInt("userId"));
+                order.setFullName(rs.getString("fullName"));
+                order.setPhone(rs.getString("phone"));
+                order.setAddress(rs.getString("address"));
                 order.setOrderDate(rs.getTimestamp("orderDate"));
                 order.setTotalPrice(rs.getDouble("totalPrice"));
                 order.setStatus(rs.getString("status"));
@@ -79,12 +85,15 @@ public class OrderService {
 
     // UPDATE
     public boolean updateOrder(Order order) throws SQLException {
-        String sql = "UPDATE orders SET userId = ?, totalPrice = ?, status = ? WHERE id = ?";
+        String sql = "UPDATE orders SET userId = ?, fullName = ?, phone = ?, address = ?, totalPrice = ?, status = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, order.getUserId());
-            stmt.setDouble(2, order.getTotalPrice());
-            stmt.setString(3, order.getStatus());
-            stmt.setInt(4, order.getId());
+            stmt.setString(2, order.getFullName());
+            stmt.setString(3, order.getPhone());
+            stmt.setString(4, order.getAddress());
+            stmt.setDouble(5, order.getTotalPrice());
+            stmt.setString(6, order.getStatus());
+            stmt.setInt(7, order.getId());
             return stmt.executeUpdate() > 0;
         }
     }

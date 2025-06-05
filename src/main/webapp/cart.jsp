@@ -74,10 +74,8 @@
             <div class="alert alert-warning">Giỏ hàng của bạn đang trống.</div>
         </c:when>
         <c:otherwise>
-            <div class="mb-2">
-                <input type="checkbox" id="checkAll" /> Chọn tất cả
-            </div>
             <form id="orderForm" method="POST" action="${pageContext.request.contextPath}/order">
+                <input type="hidden" name="action" value="toOrderPage"/>
                 <table class="table table-bordered align-middle text-center">
                     <thead class="table-light">
                     <tr>
@@ -93,7 +91,7 @@
                     <tbody>
                     <c:forEach var="item" items="${cartItems}">
                         <tr>
-                            <td><input type="checkbox" name="selectedCartIds" value="${item.id}" checked/></td>
+                            <td><input type="checkbox" class="cart-checkbox" value="${item.id}" checked/></td>
                             <td style="width: 100px;">
                                 <img src="${pageContext.request.contextPath}/assets/images/data/${item.product.image}"
                                      alt="${item.product.name}" class="img-fluid"/>
@@ -147,7 +145,7 @@
     // Tính tổng đơn hàng được chọn
     function updateTotalPrice() {
         let total = 0;
-        document.querySelectorAll('input[name="selectedCartIds"]:checked').forEach(cb => {
+        document.querySelectorAll('.cart-checkbox:checked').forEach(cb => {
             const row = cb.closest('tr');
             const priceText = row.querySelector('td:nth-child(4)').innerText;
             const quantityInput = row.querySelector('.quantity-input');
@@ -207,14 +205,14 @@
     // Khi trang tải xong
     window.addEventListener('load', () => {
         // Chọn tất cả checkbox sản phẩm
-        const checkboxes = document.querySelectorAll('input[name="selectedCartIds"]');
+        const checkboxes = document.querySelectorAll('.cart-checkbox');
         checkboxes.forEach(cb => cb.checked = true);
-
-        // Cập nhật tổng tiền ban đầu
-        updateTotalPrice();
 
         // Bắt sự kiện tick checkbox để tính lại tiền
         checkboxes.forEach(cb => cb.addEventListener('change', updateTotalPrice));
+
+        // Cập nhật tổng tiền ban đầu
+        updateTotalPrice();
 
         // Bắt sự kiện cập nhật số lượng
         document.querySelectorAll('.quantity-input').forEach(input => {
@@ -261,22 +259,27 @@
             });
         });
 
-        // Bắt sự kiện "Chọn tất cả"
-        document.getElementById("checkAll").addEventListener("change", function (e) {
-            const checked = this.checked;
-            checkboxes.forEach(cb => cb.checked = checked);
-            updateTotalPrice();
-        });
-
         // Kiểm tra trước khi submit form
         document.getElementById("orderForm").addEventListener("submit", function (e) {
-            const checked = document.querySelectorAll('input[name="selectedCartIds"]:checked');
-            if (checked.length === 0) {
+            const form = this;
+            let anyChecked = false;
+
+            document.querySelectorAll('input[name="selectedCartIds"]').forEach(el => el.remove());
+
+            document.querySelectorAll('.cart-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    anyChecked = true;
+                    const hidden = document.createElement("input");
+                    hidden.type = "hidden";
+                    hidden.name = "selectedCartIds";
+                    hidden.value = cb.value;
+                    form.appendChild(hidden);
+                }
+            });
+
+            if (!anyChecked) {
                 e.preventDefault();
                 Swal.fire('Cảnh báo', 'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.', 'warning');
-            } else {
-                const ids = [...checked].map(cb => cb.value);
-                console.log("Selected cart IDs:", ids);
             }
         });
     });

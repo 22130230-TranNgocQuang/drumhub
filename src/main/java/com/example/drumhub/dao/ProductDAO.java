@@ -3,112 +3,107 @@ package com.example.drumhub.dao;
 import com.example.drumhub.dao.db.DBConnect;
 import com.example.drumhub.dao.models.Product;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProductDAO {
+    private final Connection conn;
+
+    public ProductDAO(Connection conn) {
+        this.conn = conn;
+    }
 
     public List<Product> getAll() {
-        Statement statement = DBConnect.getStatement();
-        ResultSet rs = null;
-        try {
-            rs = statement.executeQuery("SELECT * FROM products");
-            List<Product> re = new ArrayList<>();
-            while (rs.next()){
-                re.add(new Product(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getBoolean(5), rs.getInt(6)));
+        String sql = "SELECT * FROM products";
+        List<Product> result = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                result.add(mapResultSetToProduct(rs));
             }
-            System.out.println("Total products: " + re.size());
-            return re;
+            System.out.println("Total products: " + result.size());
+            return result;
         } catch (SQLException e) {
-            throw new RuntimeException(e.toString());
+            throw new RuntimeException("Error loading products", e);
         }
     }
 
     public Product getById(int id) {
-        Statement statement = DBConnect.getStatement();
-        ResultSet rs = null;
-        try {
-            rs = statement.executeQuery("SELECT * FROM products where id = " + id);
-            List<Product> re = new ArrayList<>();
-            if (rs.next()){
-
-                return new Product(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getBoolean(5), rs.getInt(6));
+        String sql = "SELECT * FROM products WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToProduct(rs);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error loading product with ID: " + id, e);
         }
         return null;
     }
-    // Trong file ProductDao.java
-    public static List<Product> search(String keyword) {
-        Statement statement = DBConnect.getStatement();
-        ResultSet rs = null;
+
+    public List<Product> search(String keyword) {
+        String sql = "SELECT * FROM products WHERE name LIKE ? OR description LIKE ?";
         List<Product> result = new ArrayList<>();
 
-        try {
-            String sql = "SELECT * FROM products WHERE " +
-                    "name LIKE '%" + keyword + "%' OR " +
-                    "description LIKE '%" + keyword + "%'";
-            rs = statement.executeQuery(sql);
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
 
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                Product product = new Product(
-                        rs.getInt(1),      // id
-                        rs.getString(2),   // name
-                        rs.getString(3),   // description
-                        rs.getDouble(4),   // price
-                        rs.getBoolean(5),  // status
-                        rs.getInt(6)       // categoryId
-                );
-                result.add(product);
+                result.add(mapResultSetToProduct(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error searching products", e);
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
 
         return result;
     }
+
     public List<Product> getListByN(int n) {
-        Statement statement = DBConnect.getStatement();
-        ResultSet rs = null;
-        try {
-            String sql = "SELECT * FROM products LIMIT " + n;
-            rs = statement.executeQuery(sql);
-            List<Product> result = new ArrayList<>();
+        String sql = "SELECT * FROM products LIMIT ?";
+        List<Product> result = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, n);
+            ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
-                result.add(new Product(
-                        rs.getInt(1),      // id
-                        rs.getString(2),   // name
-                        rs.getString(3),   // description
-                        rs.getDouble(4),   // price
-                        rs.getBoolean(5),  // status
-                        rs.getInt(6)       // categoryId
-                ));
+                result.add(mapResultSetToProduct(rs));
             }
+
             System.out.println("Top " + n + " products: " + result.size());
             return result;
         } catch (SQLException e) {
-            throw new RuntimeException(e.toString());
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            throw new RuntimeException("Error loading top N products", e);
         }
     }
 
+    // ✅ Method mới: dùng để ẩn sản phẩm (ví dụ sau khi đặt hàng)
+    public boolean markProductAsInactive(int productId) {
+        String sql = "UPDATE products SET status = FALSE WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ✅ Hàm dùng lại để mapping dữ liệu
+    private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
+        return new Product(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("image"),
+                rs.getDouble("price"),
+                rs.getBoolean("status"),
+                rs.getInt("categoryId")
+        );
+    }
 }
