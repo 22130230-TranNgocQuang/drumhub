@@ -1,5 +1,6 @@
 package com.example.drumhub.controller;
 
+import com.example.drumhub.services.LogService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,6 +14,14 @@ import java.io.IOException;
 public class LogoutController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    private LogService logService;
+
+    @Override
+    public void init() throws ServletException {
+        // Khởi tạo logService (nhớ import LogService và LogDAO)
+        logService = new LogService(new com.example.drumhub.dao.LogDAO());
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logout(request, response);
@@ -24,15 +33,26 @@ public class LogoutController extends HttpServlet {
     }
 
     private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Lấy session hiện tại
-        HttpSession session = request.getSession(false); // false nghĩa là không tạo mới session nếu không có
+        HttpSession session = request.getSession(false); // không tạo mới session
 
         if (session != null) {
-            // Hủy session và tất cả thông tin trong session
+            // Lấy username (nếu có) để log
+            Object userObj = session.getAttribute("user");
+            String username = null;
+            if (userObj != null) {
+                try {
+                    username = ((com.example.drumhub.dao.models.User) userObj).getUsername();
+                } catch (Exception e) {
+                    // Nếu cast fail thì thôi k sao
+                }
+            }
+
+            // Log sự kiện logout
+            logService.logInfo("/logout", "User", username, null, "Đăng xuất thành công");
+
             session.invalidate();
         }
 
-        // Chuyển hướng người dùng về trang home
         response.sendRedirect("index.jsp");
     }
 }
