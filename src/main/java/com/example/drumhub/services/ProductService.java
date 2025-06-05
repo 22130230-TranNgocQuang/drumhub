@@ -51,4 +51,7 @@ public class ProductService {
     public boolean hideProduct(int productId) {
         return dao.markProductAsInactive(productId);
     }
+    public List<Product> getSearchSuggestions(String query) {
+        return dao.searchSuggestions(query);
+    }
 }

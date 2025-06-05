@@ -71,6 +71,29 @@
         .btn-outline-primary:hover {
             background-color: var(--drumhub-primary);
         }
+
+        /* Style cho hộp gợi ý tìm kiếm */
+        #suggestions {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            z-index: 1000;
+        }
+        #suggestions div {
+            padding: 8px;
+            cursor: pointer;
+        }
+        #suggestions div:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Container cho input + suggestions */
+        .search-wrapper {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -87,12 +110,13 @@
                     <h5 class="mb-0" style="background-color: var(--drumhub-primary);">Bộ lọc tìm kiếm</h5>
                 </div>
                 <div class="card-body">
-                    <form action="${pageContext.request.contextPath}/products" method="get">
-                        <!-- Search Input -->
-                        <div class="mb-3">
+                    <form action="${pageContext.request.contextPath}/list-product.jsp" method="get">
+                        <!-- Search Input with autocomplete -->
+                        <div class="mb-3 search-wrapper">
                             <label for="search" class="form-label">Tìm kiếm</label>
                             <input type="text" class="form-control" id="search" name="search"
-                                   value="${param.search}" placeholder="Nhập tên sản phẩm...">
+                                   value="${param.search}" placeholder="Nhập tên sản phẩm..." autocomplete="off">
+                            <div id="suggestions"></div>
                         </div>
 
                         <!-- Category Filter -->
@@ -110,7 +134,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Áp dụng</button>
-                        <a href="${pageContext.request.contextPath}/products" class="btn btn-outline-secondary w-100 mt-2">Xóa bộ lọc</a>
+                        <a href="#" class="btn btn-outline-secondary w-100 mt-2">Xóa bộ lọc</a>
                     </form>
                 </div>
             </div>
@@ -138,7 +162,6 @@
                                                     ${product.status ? 'Còn hàng' : 'Hết hàng'}
                                             </span>
                                         </div>
-                                            <%--                                        <p class="card-text text-muted small">${product.shortDescription}</p>--%>
                                     </div>
                                     <div class="card-footer bg-white">
                                         <div class="d-flex justify-content-between">
@@ -203,6 +226,7 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     const contextPath = '${pageContext.request.contextPath}';
 
@@ -245,5 +269,46 @@
             });
     }
 </script>
+
+<script>
+    // Tự động gợi ý tìm kiếm
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const suggestionsBox = document.getElementById('suggestions');
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+            if (query.length === 0) {
+                suggestionsBox.innerHTML = '';
+                return;
+            }
+            fetch('${pageContext.request.contextPath}/search-suggestions?query=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = '';
+                    data.forEach(product => {
+                        const div = document.createElement('div');
+                        div.textContent = product.name;
+                        div.addEventListener('click', () => {
+                            searchInput.value = product.name;
+                            suggestionsBox.innerHTML = '';
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                })
+                .catch(err => {
+                    console.error('Lỗi khi lấy gợi ý tìm kiếm:', err);
+                });
+        });
+
+        // Ẩn suggestions khi click ra ngoài
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.search-wrapper')) {
+                suggestionsBox.innerHTML = '';
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
