@@ -52,7 +52,7 @@ public class LoginController extends HttpServlet {
             // Kiểm tra nếu email đã được xác minh (status = 1 có nghĩa là đã xác minh)
             if (user.getStatus() == 1) {  // email đã xác minh
                 // Lưu thông tin người dùng vào session
-                HttpSession session = request.getSession();
+//                HttpSession session = request.getSession();
                 session.setAttribute("user", user); // Lưu người dùng vào session
                 session.setAttribute("role", user.getRole());
                 // Chuyển hướng tới trang home

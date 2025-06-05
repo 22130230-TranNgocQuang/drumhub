@@ -45,7 +45,7 @@ public class ProductDAO {
     }
 
     public List<Product> search(String keyword) {
-        String sql = "SELECT * FROM products WHERE name LIKE ? OR description LIKE ?";
+        String sql = "SELECT * FROM products WHERE name LIKE ?";
         List<Product> result = new ArrayList<>();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -106,4 +106,26 @@ public class ProductDAO {
                 rs.getInt("categoryId")
         );
     }
+    public List<Product> searchSuggestions(String query) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT id, name FROM products WHERE name LIKE ? AND status != -1 LIMIT 10";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + query + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+
 }
