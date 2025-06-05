@@ -56,4 +56,14 @@ CREATE TABLE carts (
                        FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE SET NULL,
                        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
+CREATE TABLE logs (
+                           id INT AUTO_INCREMENT PRIMARY KEY,
+                           log_time DATETIME NOT NULL,      -- Khi nào
+                           level VARCHAR(10) NOT NULL,      -- Mức độ: INFO, ERROR, ...
+                           location VARCHAR(255),           -- Ở đâu (URL, method, action)
+                           resource VARCHAR(100),           -- Tài nguyên bị tác động (ví dụ: 'Account', 'Order')
+                           actor VARCHAR(100),              -- Ai làm (username hoặc id)
+                           old_data TEXT,                   -- Dữ liệu trước
+                           new_data TEXT                    -- Dữ liệu sau
+);
 
